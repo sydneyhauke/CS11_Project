@@ -12,7 +12,7 @@ public class BarChart {
 	final Mover mover;
 	private int blockSize = 10;
 	private int timeInterval = 1000;
-	private int scoreInterval = 20;
+	private int scoreInterval = 10;
 	private final List<Float> scores;
 	private long lastTime;
 
