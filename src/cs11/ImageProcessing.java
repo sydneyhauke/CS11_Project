@@ -45,15 +45,22 @@ public class ImageProcessing extends PApplet {
 
     boolean addingCylinderMode = false;
 
+    private int SCORE_SQUARE = 130;
     PGraphics dataBackground;
+    PGraphics topView;
+    PGraphics scoreboard;
+    PGraphics barChart;
     Data data;
 
     public void setup() {
         size(WINDOW_WIDTH, WINDOW_HEIGHT, P3D);
         noStroke();
-        dataBackground = createGraphics(WINDOW_WIDTH, BACKGROUND_HEIGHT, P2D);
         mover = new Mover(this, BALL_RADIUS, BOARDLENGTH, BOARDHEIGHT, BOARDWIDTH);
-        data = new Data(dataBackground,BOARDWIDTH, BOARDLENGTH, BALL_RADIUS, mover);
+        dataBackground = createGraphics(WINDOW_WIDTH, BACKGROUND_HEIGHT, P2D);
+        topView = createGraphics(SCORE_SQUARE + 20, SCORE_SQUARE + 20, P2D);
+        scoreboard = createGraphics(SCORE_SQUARE + 20, SCORE_SQUARE + 20, P2D);
+        barChart = createGraphics(WINDOW_WIDTH - topView.width - scoreboard.width - 10, SCORE_SQUARE - 20, P2D);
+        data = new Data(dataBackground, topView, scoreboard, barChart, mover, SCORE_SQUARE, BOARDWIDTH, BOARDLENGTH, BALL_RADIUS);
     }
 
     public void draw() {
@@ -62,10 +69,9 @@ public class ImageProcessing extends PApplet {
         camera(width/2, height/2, (float)((height/2.0) / Math.tan(PI*30.0 / 180.0)), width/2, height/2, 0, 0, 1, 0);
 
         if(!addingCylinderMode) {
-        	data.display();
         	pushMatrix();
        		translate(0,WINDOW_HEIGHT-150,0);
-       		image(dataBackground, 0, 0);//,WINDOW_HEIGHT-BACKGROUND_HEIGHT);
+       		data.display(this);
         	popMatrix();
         }
         
