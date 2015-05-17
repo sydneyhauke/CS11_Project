@@ -1,4 +1,4 @@
-package cs11;
+package imageprocessing;
 
 import processing.core.*;
 
@@ -28,11 +28,15 @@ class Mover {
     ArrayList<Cylinder> cylinders;
     ArrayList<PVector> cylinderPositions;
 
+    float score;
+    float lastScore;
+    
     boolean addingCylinderMode = false;
 
+    
     Mover(PApplet parent, float ball_radius, float board_length, float board_height, float board_width) {
         this.parent = parent;
-
+        
         location = new PVector(0, 0, 0);
         velocity = new PVector(0, 0, 0);
         gravity = new PVector(0,0,0);
@@ -49,6 +53,8 @@ class Mover {
         cylinderPositions = new ArrayList<PVector>();
 
         ballRadius = ball_radius;
+        score = 0;
+        lastScore = 0;
     }
 
     void setAddingCylinderMode(boolean b) {
@@ -114,18 +120,26 @@ class Mover {
         if(location.x > board_width/2-ballRadius) {
             location.x = board_width/2-ballRadius;
             velocity.x *= -1;
+            lastScore = -velocity.mag();
+            score += lastScore;
         }
         else if(location.x < -board_width/2+ballRadius) {
             location.x = -board_width/2+ballRadius;
             velocity.x *= -1;
+            lastScore = -velocity.mag();
+            score += lastScore;
         }
         if(location.z > board_length/2-ballRadius) {
             location.z = board_length/2-ballRadius;
             velocity.z *= -1;
+            lastScore = -velocity.mag();
+            score += lastScore;
         }
         else if(location.z < -board_length/2+ballRadius) {
             location.z = -board_length/2+ballRadius;
             velocity.z *= -1;
+            lastScore = -velocity.mag();
+            score += lastScore;
         }
     }
 
@@ -141,6 +155,8 @@ class Mover {
                 n.mult(2 * velocity.dot(n));
                 velocity = PVector.sub(velocity, n);
                 location.add(velocity);
+                lastScore = velocity.mag();
+                score += lastScore;
             }
         }
     }

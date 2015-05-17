@@ -1,4 +1,6 @@
-package cs11;
+package imageprocessing;
+
+import javax.xml.datatype.DatatypeFactory;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -7,11 +9,11 @@ import processing.event.MouseEvent;
 /**
  * Created by sydney on 11.05.15.
  */
-public class ImageProcessing extends PApplet {
+public class Main extends PApplet {
     final int WINDOW_HEIGHT = 1000;
     final int WINDOW_WIDTH = 1500;
 
-    final int BACKGROUND_HEIGHT = 250;
+    final int BACKGROUND_HEIGHT = 150;
 
     final int BOARDWIDTH = 400;
     final int BOARDLENGTH = 400;
@@ -43,24 +45,38 @@ public class ImageProcessing extends PApplet {
 
     boolean addingCylinderMode = false;
 
+    private int SCORE_SQUARE = 130;
     PGraphics dataBackground;
+    PGraphics topView;
+    PGraphics scoreboard;
+    PGraphics barChart;
+    Data data;
 
     public void setup() {
         size(WINDOW_WIDTH, WINDOW_HEIGHT, P3D);
         noStroke();
         mover = new Mover(this, BALL_RADIUS, BOARDLENGTH, BOARDHEIGHT, BOARDWIDTH);
         dataBackground = createGraphics(WINDOW_WIDTH, BACKGROUND_HEIGHT, P2D);
+        topView = createGraphics(SCORE_SQUARE + 20, SCORE_SQUARE + 20, P2D);
+        scoreboard = createGraphics(SCORE_SQUARE + 20, SCORE_SQUARE + 20, P2D);
+        barChart = createGraphics(WINDOW_WIDTH - topView.width - scoreboard.width - 10, SCORE_SQUARE - 20, P2D);
+        data = new Data(dataBackground, topView, scoreboard, barChart, mover, SCORE_SQUARE, BOARDWIDTH, BOARDLENGTH, BALL_RADIUS);
     }
 
     public void draw() {
         background(200);
+        //Default camera of processing
+        camera(width/2, height/2, (float)((height/2.0) / Math.tan(PI*30.0 / 180.0)), width/2, height/2, 0, 0, 1, 0);
+
+        if(!addingCylinderMode) {
+        	pushMatrix();
+       		translate(0,WINDOW_HEIGHT-150,0);
+       		data.display(this);
+        	popMatrix();
+        }
+        
         directionalLight(255, 255, 255, 0, 1, -1);
         ambientLight(102, 102, 102);
-
-        dataBackground.beginDraw();
-        dataBackground.background(255, 255, 200);
-        dataBackground.endDraw();
-        image(dataBackground, 0, WINDOW_HEIGHT-BACKGROUND_HEIGHT);
 
         // Based on which mode we are, camera is placed nearer the board
         if(addingCylinderMode)
@@ -74,6 +90,7 @@ public class ImageProcessing extends PApplet {
         else rotateX(tiltX);
         rotateZ(tiltZ);
         rotateY(rotation);
+
 
         // Optional : show Axis
         if(showAxis) {

@@ -1,4 +1,4 @@
-package cs11;
+package imageprocessing;
 
 import processing.core.PApplet;
 
