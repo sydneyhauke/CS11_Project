@@ -10,7 +10,7 @@ import processing.core.PGraphics;
 public class BarChart {
 	final PGraphics barChart;
 	final Mover mover;
-	private final int blockSize = 10;
+	private int blockSize = 10;
 	private int timeInterval = 1000;
 	private int scoreInterval = 20;
 	private final List<Float> scores;
@@ -27,7 +27,6 @@ public class BarChart {
 		if(System.currentTimeMillis() - lastTime > timeInterval) {
 			scores.add(mover.score);
 			lastTime = System.currentTimeMillis();
-			System.out.println(scores.toString());
 		}
 
 		barChart.beginDraw();
@@ -37,10 +36,10 @@ public class BarChart {
 		barChart.fill(255,0,0);
 		for(float score : scores) {
 			int height = height = (int) (score/scoreInterval);;
-			/*while(height * (blockSize + blockSize/2) > barChart.height) {
-				scoreInterval /= 2;
+			while(blockSize > 0 && height * (blockSize + blockSize/2) > barChart.height) {
+				blockSize -= Math.max(1, blockSize/4);
 				height = (int) (score/scoreInterval);
-			}*/
+			}
 			for(int i = 0; i < height; i++){
 				barChart.rect(0, (blockSize + blockSize/2)*i, blockSize, blockSize);
 			}
