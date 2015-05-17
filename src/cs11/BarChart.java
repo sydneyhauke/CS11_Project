@@ -1,27 +1,54 @@
 package cs11;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jogamp.opengl.glu.nurbs.Arc;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
 public class BarChart {
 	final PGraphics barChart;
 	final Mover mover;
-	final int block_size = 10;
-	
+	private final int blockSize = 10;
+	private int timeInterval = 1000;
+	private int scoreInterval = 20;
+	private final List<Float> scores;
+	private long lastTime;
+
 	public BarChart(PGraphics barChart, Mover mover) {
 		this.barChart = barChart;
 		this.mover = mover;
+		this.scores = new ArrayList<>();
+		lastTime = System.currentTimeMillis();
 	}
-	
+
 	public void display(PApplet parent){
-    	barChart.beginDraw();
-    	barChart.noStroke();
-    	barChart.background(238,235,201);
-    	
-    	
-    	barChart.endDraw();
-    	parent.image(barChart, 0, 0);
+		if(System.currentTimeMillis() - lastTime > timeInterval) {
+			scores.add(mover.score);
+			lastTime = System.currentTimeMillis();
+			System.out.println(scores.toString());
+		}
+
+		barChart.beginDraw();
+		barChart.noStroke();
+		barChart.background(238,235,201);
+		barChart.translate(10, 0);
+		barChart.fill(255,0,0);
+		for(float score : scores) {
+			int height = height = (int) (score/scoreInterval);;
+			/*while(height * (blockSize + blockSize/2) > barChart.height) {
+				scoreInterval /= 2;
+				height = (int) (score/scoreInterval);
+			}*/
+			for(int i = 0; i < height; i++){
+				barChart.rect(0, (blockSize + blockSize/2)*i, blockSize, blockSize);
+			}
+			barChart.translate(blockSize + blockSize/2, 0);
+		}
+		barChart.endDraw();
+		parent.image(barChart, 0, 0);
 	}
-	
-	
+
+
 }
