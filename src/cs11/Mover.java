@@ -28,11 +28,14 @@ class Mover {
     ArrayList<Cylinder> cylinders;
     ArrayList<PVector> cylinderPositions;
 
+    float score;
+    
     boolean addingCylinderMode = false;
 
+    
     Mover(PApplet parent, float ball_radius, float board_length, float board_height, float board_width) {
         this.parent = parent;
-
+        
         location = new PVector(0, 0, 0);
         velocity = new PVector(0, 0, 0);
         gravity = new PVector(0,0,0);
@@ -49,6 +52,7 @@ class Mover {
         cylinderPositions = new ArrayList<PVector>();
 
         ballRadius = ball_radius;
+        score = 0;
     }
 
     void setAddingCylinderMode(boolean b) {

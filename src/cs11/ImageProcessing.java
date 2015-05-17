@@ -1,5 +1,7 @@
 package cs11;
 
+import javax.xml.datatype.DatatypeFactory;
+
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.event.MouseEvent;
@@ -11,7 +13,7 @@ public class ImageProcessing extends PApplet {
     final int WINDOW_HEIGHT = 1000;
     final int WINDOW_WIDTH = 1500;
 
-    final int BACKGROUND_HEIGHT = 250;
+    final int BACKGROUND_HEIGHT = 150;
 
     final int BOARDWIDTH = 400;
     final int BOARDLENGTH = 400;
@@ -44,23 +46,31 @@ public class ImageProcessing extends PApplet {
     boolean addingCylinderMode = false;
 
     PGraphics dataBackground;
+    Data data;
 
     public void setup() {
         size(WINDOW_WIDTH, WINDOW_HEIGHT, P3D);
         noStroke();
-        mover = new Mover(this, BALL_RADIUS, BOARDLENGTH, BOARDHEIGHT, BOARDWIDTH);
         dataBackground = createGraphics(WINDOW_WIDTH, BACKGROUND_HEIGHT, P2D);
+        mover = new Mover(this, BALL_RADIUS, BOARDLENGTH, BOARDHEIGHT, BOARDWIDTH);
+        data = new Data(dataBackground,BOARDWIDTH, BOARDLENGTH, BALL_RADIUS, mover);
     }
 
     public void draw() {
         background(200);
+        //Default camera of processing
+        camera(width/2, height/2, (float)((height/2.0) / Math.tan(PI*30.0 / 180.0)), width/2, height/2, 0, 0, 1, 0);
+
+        if(!addingCylinderMode) {
+        	data.display();
+        	pushMatrix();
+       		translate(0,WINDOW_HEIGHT-150,0);
+       		image(dataBackground, 0, 0);//,WINDOW_HEIGHT-BACKGROUND_HEIGHT);
+        	popMatrix();
+        }
+        
         directionalLight(255, 255, 255, 0, 1, -1);
         ambientLight(102, 102, 102);
-
-        dataBackground.beginDraw();
-        dataBackground.background(255, 255, 200);
-        dataBackground.endDraw();
-        image(dataBackground, 0, WINDOW_HEIGHT-BACKGROUND_HEIGHT);
 
         // Based on which mode we are, camera is placed nearer the board
         if(addingCylinderMode)
@@ -74,6 +84,7 @@ public class ImageProcessing extends PApplet {
         else rotateX(tiltX);
         rotateZ(tiltZ);
         rotateY(rotation);
+
 
         // Optional : show Axis
         if(showAxis) {
