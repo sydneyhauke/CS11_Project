@@ -1,4 +1,4 @@
-package cs11;
+package imageprocessing;
 
 import javax.xml.datatype.DatatypeFactory;
 
