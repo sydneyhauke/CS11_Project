@@ -14,6 +14,8 @@ class Cylinder {
     PShape bottomCylinder = new PShape();
 
     Cylinder(PApplet parent, float cylinderBaseSize, float cylinderHeight, float cylinderResolution) {
+        this.parent = parent;
+
         float angle;
         float[] x = new float[(int)cylinderResolution + 1];
         float[] z = new float[(int)cylinderResolution + 1];

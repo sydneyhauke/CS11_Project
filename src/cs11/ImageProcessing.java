@@ -132,12 +132,13 @@ public class ImageProcessing extends PApplet {
                 for (int i = 0; i < 3; i++) {
                     for (int j = 0; j < 3; j++) {
                         if(!(x+i-1 < 0 || x+i-1 > img.width-1 || y+j-1 < 0 || y+j-1 > img.height-1)){
+
                             float g = green(img.get(x+i-1, y+j-1));
                             float r = red(img.get(x+i-1, y+j-1));
                             float b = blue(img.get(x+i-1, y+j-1));
 
                             conv += (r+g+b)/3 * kernel[i][j];
-                            println(conv);
+                            println(img.get(x+i-1, y+j-1));
 
                         }
                     }
