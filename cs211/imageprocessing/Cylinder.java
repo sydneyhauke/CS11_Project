@@ -15,8 +15,13 @@ class Cylinder {
 
     Cylinder(PApplet parent, float cylinderBaseSize, float cylinderHeight, float cylinderResolution) {
         this.parent = parent;
+<<<<<<< HEAD:cs211/imageprocessing/Cylinder.java
     	
     	float angle;
+=======
+
+        float angle;
+>>>>>>> origin/week8:src/cs11/Cylinder.java
         float[] x = new float[(int)cylinderResolution + 1];
         float[] z = new float[(int)cylinderResolution + 1];
 

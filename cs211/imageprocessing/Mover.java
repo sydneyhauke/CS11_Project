@@ -4,14 +4,14 @@ import processing.core.*;
 
 import java.util.ArrayList;
 
-/* Mover class. An environnement where a ball rolls on a board and collides with cylinders */
+/* Mover class. An environnement where a ball rolls on a board and collides with Towers */
 class Mover {
     private PApplet parent;
 
     final float gravityConstant = 0.2f;
-    final float cylinderRadius = 25;
-    final float cylinderHeight = -50;
-    final float cylinderResolution = 40;
+    final float TowerRadius = 25;
+    final float TowerHeight = -50;
+    final float TowerResolution = 40;
     final float ballRadius;
 
     PVector location;
@@ -24,14 +24,18 @@ class Mover {
 
     Ball ball;
     Board board;
-    Cylinder placementCylinder;
-    ArrayList<Cylinder> cylinders;
-    ArrayList<PVector> cylinderPositions;
+    Tower placementTower;
+    ArrayList<Tower> towers;
+    ArrayList<PVector> towerPositions;
 
+<<<<<<< HEAD:cs211/imageprocessing/Mover.java
     float score;
     float lastScore;
     
     boolean addingCylinderMode = false;
+=======
+    boolean addingTowerMode = false;
+>>>>>>> origin/week8:src/cs11/Mover.java
 
     
     Mover(PApplet parent, float ball_radius, float board_length, float board_height, float board_width) {
@@ -47,22 +51,22 @@ class Mover {
 
         ball = new Ball(parent, ball_radius);
         board = new Board(parent, board_width, board_height, board_length);
-        placementCylinder = new Cylinder(parent, cylinderRadius, cylinderHeight, cylinderResolution);
+        placementTower = new Tower(parent);
 
-        cylinders = new ArrayList<Cylinder>();
-        cylinderPositions = new ArrayList<PVector>();
+        towers = new ArrayList<Tower>();
+        towerPositions = new ArrayList<PVector>();
 
         ballRadius = ball_radius;
         score = 0;
         lastScore = 0;
     }
 
-    void setAddingCylinderMode(boolean b) {
-        addingCylinderMode = b;
+    void setAddingTowerMode(boolean b) {
+        addingTowerMode = b;
     }
 
     void update(float rotX, float rotZ) {
-        if(!addingCylinderMode) {
+        if(!addingTowerMode) {
             gravity.x = (float)Math.sin(rotZ) * gravityConstant;
             gravity.z = (float)-Math.sin(rotX) * gravityConstant;
 
@@ -78,32 +82,32 @@ class Mover {
             velocity.add(friction);
 
             checkEdges();
-            checkCylinderCollision();
+            checkTowerCollision();
             location.add(velocity);
         }
     }
 
-    void placeCylinder(float x, float z) {
-        if(addingCylinderMode) {
+    void placeTower(float x, float z) {
+        if(addingTowerMode) {
             // Display board first
             display();
 
             parent.translate(x, -board_height/2, z);
-            placementCylinder.display();
+            placementTower.display();
         }
     }
 
     void display() {
         board.display();
 
-        // Place all cylinders and draw it
-        for(int i = 0; i < cylinderPositions.size(); i++) {
-            Cylinder cylinder = cylinders.get(i);
-            PVector position = cylinderPositions.get(i);
+        // Place all Towers and draw it
+        for(int i = 0; i < towerPositions.size(); i++) {
+            Tower tower = towers.get(i);
+            PVector position = towerPositions.get(i);
 
             parent.pushMatrix();
             parent.translate(position.x, -board_height/2, position.z);
-            cylinder.display();
+            tower.display();
             parent.popMatrix();
         }
 
@@ -143,14 +147,14 @@ class Mover {
         }
     }
 
-    void checkCylinderCollision() {
-        // Check the position of all cylinders prior to the ball
-        for(PVector cylinderPosition : cylinderPositions) {
-            float dist = PVector.dist(cylinderPosition, location);
+    void checkTowerCollision() {
+        // Check the position of all Towers prior to the ball
+        for(PVector TowerPosition : towerPositions) {
+            float dist = PVector.dist(TowerPosition, location);
 
             //collision
-            if(dist < cylinderRadius+ballRadius) {
-                PVector n = PVector.sub(cylinderPosition, location);
+            if(dist < TowerRadius+ballRadius) {
+                PVector n = PVector.sub(TowerPosition, location);
                 n.normalize();
                 n.mult(2 * velocity.dot(n));
                 velocity = PVector.sub(velocity, n);
@@ -161,14 +165,14 @@ class Mover {
         }
     }
 
-    void addCylinder(float x, float z) {
-        if(addingCylinderMode) {
-            // Distance between the center of the ball and the cylinder
+    void addTower(float x, float z) {
+        if(addingTowerMode) {
+            // Distance between the center of the ball and the Tower
             float dist = PVector.dist(new PVector(x, 0, z), location);
-            // If the cylinder doesn't touch the ball, we can place it.
-            if(dist > cylinderRadius + ballRadius) {
-                cylinders.add(new Cylinder(parent, cylinderRadius, cylinderHeight, cylinderResolution));
-                cylinderPositions.add(new PVector(x, 0, z));
+            // If the Tower doesn't touch the ball, we can place it.
+            if(dist > TowerRadius + ballRadius) {
+                towers.add(new Tower(parent));
+                towerPositions.add(new PVector(x, 0, z));
             }
         }
     }
