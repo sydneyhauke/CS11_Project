@@ -21,13 +21,10 @@ public class ImageProcessing extends PApplet {
 		noLoop();
 	}
 	public void draw() {
-		// f = 700
 		background(color(0,0,0));
 
 		PImage selecHueImg = selectHue(img, 100, 120); // 100 - 135 et webcam : 98, 112
-		//PImage blurImg = gaussianBlur(selecHueImg);
 		PImage thresholdImg = thresholdImg(selecHueImg, 0.05);
-		//print(thresholdBar.getPos());
 		PImage sobelImg = sobel(thresholdImg, 0.5);
 		
 		translate(1600,0);
@@ -224,9 +221,9 @@ public class ImageProcessing extends PApplet {
 		}
 
 		//display accumulator
-		PImage houghImg = createImage(img.width, img.height, ALPHA);
-			for (int i = 0; i < accumulator.length; i++) {
-			houghImg.pixels[i] = color(min(255, accumulator[i]));
+		PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
+		for (int i = 0; i < accumulator.length; i++) {
+		houghImg.pixels[i] = color(min(255, accumulator[i]));
 		}
 		houghImg.updatePixels();
 //		System.out.println(houghImg.width + " " + houghImg.height);
