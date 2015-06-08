@@ -8,11 +8,10 @@ import java.util.Comparator;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
-import tests.HScrollBar;
 
 public class ImageProcessing extends PApplet {
     PImage img;
-    HScrollBar thresholdBar;
+    HScrollbar thresholdBar;
 
     public void setup() {
         size(800, 600);
