@@ -1,5 +1,3 @@
-package imageprocessing;
-
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
@@ -70,10 +68,10 @@ public class Data {
         topView.fill(255,255,255);
         topView.rect(10, 10, SCORE_SQUARE, SCORE_SQUARE);
         topView.fill(0,0,255);
-        for(PVector v : mover.cylinderPositions){
+        for(PVector v : mover.getTowerPositions()){
         	float x = (v.x + BOARDWIDTH/2) * ratio;
         	float z = (v.z + BOARDLENGTH/2) * ratio;
-        	topView.ellipse(10+x, 10+z, mover.cylinderRadius * ratio*2, mover.cylinderRadius * ratio*2);
+        	topView.ellipse(10+x, 10+z, mover.getTowerRadius() * ratio*2, mover.getTowerRadius() * ratio*2);
         }
 
         //ball

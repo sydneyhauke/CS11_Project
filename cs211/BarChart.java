@@ -1,9 +1,6 @@
-package imageprocessing;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import jogamp.opengl.glu.nurbs.Arc;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 

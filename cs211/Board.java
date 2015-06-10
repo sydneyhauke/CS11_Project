@@ -1,5 +1,3 @@
-package imageprocessing;
-
 import processing.core.PApplet;
 
 /**

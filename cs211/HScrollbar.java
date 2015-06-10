@@ -1,5 +1,3 @@
-package imageprocessing;
-
 import processing.core.PApplet;
 
 public class HScrollbar {
@@ -65,6 +63,8 @@ public class HScrollbar {
 					+ (newSliderPosition - sliderPosition);
 		}
 	}
+
+
 
 	/**
 	 * @brief Clamps the value into the interval

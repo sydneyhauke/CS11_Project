@@ -1,5 +1,3 @@
-package imageprocessing;
-
 import java.util.ArrayList;
 import java.util.List;
 

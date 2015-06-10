@@ -1,5 +1,3 @@
-package imageprocessing;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,29 +7,70 @@ import java.util.Random;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
+import processing.video.Capture;
+import processing.video.Movie;
 
 public class ImageProcessing extends PApplet {
 	PImage img;
-	HScrollbar thresholdBar;
-	
-	public void setup() {
-		size(2400, 600);
-		//thresholdBar = new HScrollbar(this, 0, 580, 800, 20);
-		img = loadImage("cs11/board1.jpg");
-		noLoop();
-	}
-	public void draw() {
-		background(color(0,0,0));
+	HScrollbar infHue;
+	HScrollbar supHue;
+	HScrollbar infBrightness;
+	HScrollbar supBrightness;
+	HScrollbar infSaturation;
+	HScrollbar supSaturation;
 
-		PImage selecHueImg = selectHue(img, 100, 120); // 100 - 135 et webcam : 98, 112
-		PImage thresholdImg = thresholdImg(selecHueImg, 0.05);
-		PImage sobelImg = sobel(thresholdImg, 0.5);
-		
-		translate(1600,0);
-		image(sobelImg, 0, 0);
-		translate(-1600,0);
-		
+	Capture cam;
+
+	public void setup() {
+		size(1280, 785);
+
+		String[] cameras = Capture.list();
+		if (cameras.length == 0) {
+			println("There are no cameras available for capture.");
+			exit();
+		} else {
+			println("Available cameras:");
+			for (int i = 0; i < cameras.length; i++) {
+				println(i + ": " + cameras[i]);
+			}
+			cam = new Capture(this, cameras[15]);
+			cam.start();
+		}
+
+		infHue = new HScrollbar(this, 100, 720, 1180, 10);
+		supHue = new HScrollbar(this, 100, 731, 1180, 10);
+
+		infBrightness = new HScrollbar(this, 100, 742, 1180, 10);
+		supBrightness = new HScrollbar(this, 100, 753, 1180, 10);
+
+		infSaturation = new HScrollbar(this, 100, 764, 1180, 10);
+		supSaturation = new HScrollbar(this, 100, 775, 1180, 10);
+	}
+
+	public void draw() {
+		background(255);
+
+		if(cam.available()) {
+			cam.read();
+		}
+		img = cam.get();
+
+		infHue.update();
+		supHue.update();
+
+		infBrightness.update();
+		supBrightness.update();
+
+		infSaturation.update();
+		supSaturation.update();
+
+		PImage selecHueImg = selHSB(img, infHue.getPos() * 255, supHue.getPos() * 255, infSaturation.getPos() * 255, supSaturation.getPos() * 255, infBrightness.getPos() * 255, supBrightness.getPos() * 255); // 100 - 135 et webcam : 98, 112
+		PImage bluredImg = gaussianBlur(gaussianBlur(selecHueImg));
+		PImage thresholdImg = thresholdImg(bluredImg, 0.97);
+		PImage sobelImg = sobel(thresholdImg, 0.1);
+
 		image(img, 0, 0);
+		
 		QuadGraph qg = new QuadGraph();
 		List<PVector> lines = hough(sobelImg, 200, 4);
 		qg.build(lines, img.width, img.height);
@@ -58,25 +97,68 @@ public class ImageProcessing extends PApplet {
 			quad(c12.x,c12.y,c23.x,c23.y,c34.x,c34.y,c41.x,c41.y);
 		}
 
+		infHue.display();
+		supHue.display();
 
-		//		thresholdBar.display();
-		//		thresholdBar.update();
+		infBrightness.display();
+		supBrightness.display();
+
+		infSaturation.display();
+		supSaturation.display();
+
+		textSize(8);
+
+		text("infHue : " + infHue.getPos()*255, 10, 729);
+		text("supHue : " + supHue.getPos()*255, 10, 740);
+
+		text("infBright : " + infBrightness.getPos()*255, 10, 751);
+		text("supBright : " + supBrightness.getPos()*255, 10, 762);
+
+		text("infSat : " + infSaturation.getPos()*255, 10, 773);
+		text("supSat : " + supSaturation.getPos()*255, 10, 784);
 	}
-	PImage thresholdImg(PImage img, double threashold){
-		PImage result = createImage(img.width, img.height, RGB); // create a new, initially transparent, 'result' image
-		double threshold = threashold * 255;
-		for(int i = 0;	 i < img.width * img.height; i++) {
-			result.pixels[i] = brightness(img.pixels[i])  > threshold? color(255, 255, 255): color(0, 0, 0);
+
+	PImage selHSB(PImage src, float infHue, float supHue, float infSat, float supSat, float infBr, float supBr) {
+		PImage result = createImage(src.width, src.height, ALPHA);
+
+		int size = src.width * src.height;
+		for(int i = 0; i < size; i++) {
+			int pix = src.pixels[i];
+			float br = brightness(pix);
+			float hue = hue(pix);
+			float sat = saturation(pix);
+
+			if(infHue <= hue && hue <= supHue && infSat <= sat && sat <= supSat && infBr <= br && br <= supBr) {
+				result.pixels[i] = color(255);
+			}
+			else {
+				result.pixels[i] = color(0);
+			}
 		}
+
+		return result;
+	}
+
+	PImage thresholdImg(PImage img, double threashold){
+		PImage result = createImage(img.width, img.height, ALPHA); // create a new, initially transparent, 'result' image
+
+		int size = img.width * img.height;
+		double threshold = threashold * 255;
+		for(int i = 0;	 i < size; i++) {
+			result.pixels[i] = brightness(img.pixels[i])  > threshold ? color(255): color(0);
+		}
+
 		return result;
 	}
 
 	PImage thresholdInverseImg(PImage img, double threashold){
 		PImage result = createImage(img.width, img.height, RGB); // create a new, initially transparent, 'result' image
+
 		double threshold = threashold * 255;
 		for(int i = 0;	 i < img.width * img.height; i++) {
 			result.pixels[i] = brightness(img.pixels[i])  > threshold? color(0, 0, 0) : color(255, 255, 255); 
 		}
+
 		return result;
 	}
 
@@ -87,15 +169,15 @@ public class ImageProcessing extends PApplet {
 				{ 0, -1, 0}};
 		float[][] vKernel = {
 				{ 0, 0, 0 },
-				{ 1, 0, -1},
-				{ 0, 0, 0 }};
+				{1, 0, -1},
+				{0, 0, 0 }};
 
 		PImage result = createImage(img.width, img.height, ALPHA);
 
 		// clear the image
-		for (int i = 0; i < img.width * img.height; i++) {
+		/*for (int i = 0; i < img.width * img.height; i++) {
 			result.pixels[i] = color(0);
-		}
+		}*/
 
 		for (int y=2; y < result.height-2; y++) {
 			for (int x=2; x < result.width-2; x++) {
@@ -104,14 +186,14 @@ public class ImageProcessing extends PApplet {
 
 				for (int i = 0; i < 3; i++) {
 					for (int j = 0; j < 3; j++) {
-						convH += brightness(img.get(x+i-1, y+j-1)) * hKernel[i][j];
-						convV += brightness(img.get(x+i-1, y+j-1)) * vKernel[i][j];
+						convH += brightness(img.pixels[(y+j-1) * img.width + x+i-1]) * hKernel[i][j];
+						convV += brightness(img.pixels[(y+j-1) * img.width + x+i-1]) * vKernel[i][j];
 					}
 				}
 				if (sqrt(convH*convH + convV*convV) > (int)(max* 255 * 0.3f)) { // 30% of the max
-					result.set(x, y, color(255));
+					result.pixels[y * img.width + x] = color(255);
 				} else {
-					result.set(x, y, color(0));
+					result.pixels[y * img.width + x] = color(0);
 				}
 
 
@@ -129,62 +211,52 @@ public class ImageProcessing extends PApplet {
 		return transformAlgo(img, kernel, 1.f);
 	}
 
-	public PImage gaussianBlur(PImage img) {
+	public PImage gaussianBlur(PImage src) {
 		float[][] kernel = {
 				{ 9, 12, 9 },
 				{ 12, 15, 12 },
 				{ 9, 12, 9 }};
 
 
-		return transformAlgo(img, kernel, 99);
+		return transformAlgo(src, kernel, 99);
 	}
 
-	PImage selectHue(PImage img, float infHue, float supHue){
+	PImage selectHue(PImage src, float infHue, float supHue){
 		// create a greyscale image (type: ALPHA) for output
-		PImage result = createImage(img.width, img.height, ALPHA);
+		PImage result = createImage(src.width, src.height, ALPHA);
 
-		for (int y =0; y<img.height; y++) {
-			for (int x=0; x<img.width; x++) {
-				float hue = hue(img.get(x, y));
-				if(infHue<hue && hue<supHue){
-					result.set(x, y, img.get(x, y));
+		for (int y =0; y<src.height; y++) {
+			for (int x=0; x<src.width; x++) {
+				float hue = hue(src.get(x, y));
+				if(infHue<=hue && hue<=supHue){
+					result.pixels[y*src.width + x] = color(255);
 				}
 				else {
-					result.set(x, y, color(0));
+					result.pixels[y*src.width + x] = color(0);
 				}
 			}
 		}
 		return result;
 	}
 
-	private PImage transformAlgo(PImage img, float[][] kernel, float weight) {
-
+	private PImage transformAlgo(PImage src, float[][] kernel, float weight) {
 		// create a greyscale image (type: ALPHA) for output
-		PImage result = createImage(img.width, img.height, ALPHA);
+		PImage result = createImage(src.width, src.height, ALPHA);
 
-		for (int y =0; y<img.height; y++) {
-			for (int x=0; x<img.width; x++) {
+		for (int y =0; y<src.height; y++) {
+			for (int x=0; x<src.width; x++) {
 
 				float conv = 0;
 				for (int i = 0; i < 3; i++) {
 					for (int j = 0; j < 3; j++) {
-						if(!(x+i-1 < 0 || x+i-1 > img.width-1 || y+j-1 < 0 || y+j-1 > img.height-1)){
-
-							float g = green(img.get(x+i-1, y+j-1));
-							float r = red(img.get(x+i-1, y+j-1));
-							float b = blue(img.get(x+i-1, y+j-1));
-
-							conv += (r+g+b)/3 * kernel[i][j];
-//							println(img.get(x+i-1, y+j-1));
-
+						if(!(x+i-1 < 0 || x+i-1 > src.width-1 || y+j-1 < 0 || y+j-1 > src.height-1)){
+							conv += brightness(src.pixels[(y+j-1) * src.width + x+i-1]) * kernel[i][j];
 						}
 					}
 				}
-				result.set(x, y, color((int) (conv/weight)));
+				result.pixels[y * src.width + x] = color(conv/weight);
 			}
 		}
-
-		image(result, 0, 0);
 
 		return result;
 	}
@@ -227,9 +299,9 @@ public class ImageProcessing extends PApplet {
 		}
 		houghImg.updatePixels();
 //		System.out.println(houghImg.width + " " + houghImg.height);
-		translate(800,0);
+		/*translate(800,0);
 		image(houghImg,0,0);
-		translate(-800, 0);
+		translate(-800, 0);*/
 		
 		ArrayList<Integer> bestCandidates = new ArrayList<Integer>();
 
@@ -313,7 +385,8 @@ public class ImageProcessing extends PApplet {
 			int y2 = (int) (-cos(phi) / sin(phi) * x2 + r / sin(phi)); int y3 = edgeImg.width;
 			int x3 = (int) (-(y3 - r / sin(phi)) * (sin(phi) / cos(phi)));
 			// Finally, plot the lines
-			stroke(204,102,0); if (y0 > 0) {
+			stroke(204,102,0);
+			if (y0 > 0) {
 				if (x1 > 0)
 					line(x0, y0, x1, y1);
 				else if (y2 > 0)

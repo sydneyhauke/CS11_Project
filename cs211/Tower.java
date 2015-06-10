@@ -1,6 +1,5 @@
-package imageprocessing;
-
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PShape;
 
 /**
@@ -12,11 +11,15 @@ public class Tower {
 
     public Tower(PApplet parent) {
         this.parent = parent;
-        tower = parent.loadShape("/home/sydney/Documents/Uni/Assignments/VisualComputing/CS11_Project/src/tests/Towerv2.obj");
+        tower = parent.loadShape("Towerv2.obj");
         tower.scale(1);
     }
 
     public void display() {
+        parent.pushMatrix();
+        parent.rotateX(PConstants.PI);
+        parent.rotateY(PConstants.PI/2);
         parent.shape(tower);
+        parent.popMatrix();
     }
 }

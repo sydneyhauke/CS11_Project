@@ -1,8 +1,7 @@
-package imageprocessing;
-
 import processing.core.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /* Mover class. An environnement where a ball rolls on a board and collides with Towers */
 class Mover {
@@ -28,14 +27,12 @@ class Mover {
     ArrayList<Tower> towers;
     ArrayList<PVector> towerPositions;
 
-<<<<<<< HEAD:cs211/imageprocessing/Mover.java
     float score;
     float lastScore;
     
     boolean addingCylinderMode = false;
-=======
+
     boolean addingTowerMode = false;
->>>>>>> origin/week8:src/cs11/Mover.java
 
     
     Mover(PApplet parent, float ball_radius, float board_length, float board_height, float board_width) {
@@ -175,5 +172,13 @@ class Mover {
                 towerPositions.add(new PVector(x, 0, z));
             }
         }
+    }
+
+    List<PVector> getTowerPositions() {
+        return towerPositions;
+    }
+
+    float getTowerRadius() {
+        return TowerRadius;
     }
 }
