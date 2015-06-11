@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -16,14 +15,26 @@ public class ImageProcessing {
         this.parent = parent;
     }
 
-	public void process(PImage img, float infHue, float supHue, float infSat, float supSat, float infBr, float supBr) {
+    /**
+     * Computes the position of all four corners of the board with the help of an image
+     *
+     * @param img
+     * @param infHue
+     * @param supHue
+     * @param infSat
+     * @param supSat
+     * @param infBr
+     * @param supBr
+     * @return List of all positions of the corners
+     */
+	public List<PVector> process(PImage img, float infHue, float supHue, float infSat, float supSat, float infBr, float supBr) {
 		PImage selecHueImg = selHSB(img, infHue, supHue, infSat, supSat, infBr, supBr); // 100 - 135 et webcam : 98, 112
 		PImage bluredImg = gaussianBlur(gaussianBlur(selecHueImg));
 		PImage thresholdImg = thresholdImg(bluredImg, 0.97);
 		PImage sobelImg = sobel(thresholdImg, 0.1);
 		
 		QuadGraph qg = new QuadGraph();
-		List<PVector> lines = hough(sobelImg, 200, 4);
+		List<PVector> lines = hough(sobelImg, 200, 6);
 		qg.build(lines, img.width, img.height);
 		qg.findCycles(400, 100);
 
@@ -40,13 +51,19 @@ public class ImageProcessing {
 			PVector c23 = getIntersection(l2, l3);
 			PVector c34 = getIntersection(l3, l4);
 			PVector c41 = getIntersection(l4, l1);
-			// Choose a random, semi-transparent colour
-			Random random = new Random();
-			parent.fill(parent.color(PApplet.min(255, random.nextInt(300)),
-                    PApplet.min(255, random.nextInt(300)),
-                    PApplet.min(255, random.nextInt(300)), 50));
-			parent.quad(c12.x, c12.y, c23.x, c23.y, c34.x, c34.y, c41.x, c41.y);
+
+            if(QuadGraph.nonFlatQuad(c12, c23, c34, c41) && QuadGraph.isConvex(c12, c23, c34, c41)) {
+                List<PVector> lst = new ArrayList<PVector>();
+                lst.add(c12);
+                lst.add(c23);
+                lst.add(c34);
+                lst.add(c41);
+
+                return lst;
+            }
 		}
+
+        return new ArrayList<>(); // return empty list if no good quad is found
 	}
 
 	private PImage selHSB(PImage src, float infHue, float supHue, float infSat, float supSat, float infBr, float supBr) {
@@ -152,24 +169,6 @@ public class ImageProcessing {
 		return transformAlgo(src, kernel, 99);
 	}
 
-	/*PImage selectHue(PImage src, float infHue, float supHue){
-		// create a greyscale image (type: ALPHA) for output
-		PImage result = parent.createImage(src.width, src.height, PApplet.ALPHA);
-
-		for (int y =0; y<src.height; y++) {
-			for (int x=0; x<src.width; x++) {
-				float hue = parent.hue(src.get(x, y));
-				if(infHue<=hue && hue<=supHue){
-					result.pixels[y*src.width + x] = parent.color(255);
-				}
-				else {
-					result.pixels[y*src.width + x] = parent.color(0);
-				}
-			}
-		}
-		return result;
-	}*/
-
 	private PImage transformAlgo(PImage src, float[][] kernel, float weight) {
 		// create a greyscale image (type: ALPHA) for output
 		PImage result = parent.createImage(src.width, src.height, PApplet.ALPHA);
@@ -192,7 +191,7 @@ public class ImageProcessing {
 		return result;
 	}
 
-	private ArrayList<PVector> hough(PImage edgeImg,  int minVotes, int nLines) {
+	private List<PVector> hough(PImage edgeImg,  int minVotes, int nLines) {
 
 		float discretizationStepsPhi = 0.01f;
 		float discretizationStepsR = 2.5f;
@@ -209,33 +208,21 @@ public class ImageProcessing {
 		// image), store all possible (r, phi) pairs describing lines going
 		// through the point.
 		for (int y = 0; y < edgeImg.height; y++) {
-			for (int x = 0; x < edgeImg.width; x++) {
-				// Are we on an edge?
-				if (parent.brightness(edgeImg.pixels[y * edgeImg.width + x]) != 0) {
-					for(int phiIdx=0; phiIdx<phiDim; ++phiIdx){
-						double phi = discretizationStepsPhi * phiIdx;
-						double r = x*Math.cos(phi) + y*Math.sin(phi);
+            for (int x = 0; x < edgeImg.width; x++) {
+                // Are we on an edge?
+                if (parent.brightness(edgeImg.pixels[y * edgeImg.width + x]) != 0) {
+                    for (int phiIdx = 0; phiIdx < phiDim; ++phiIdx) {
+                        double phi = discretizationStepsPhi * phiIdx;
+                        double r = x * Math.cos(phi) + y * Math.sin(phi);
 
-						int rIdx = (int) ( (r/discretizationStepsR) + 0.5*(rDim-1) + 1) ;
-						accumulator[(phiIdx+1)*(rDim + 2) + rIdx] += 1;
-					}
-				}
-			}
-		}
-
-		//display accumulator
-		PImage houghImg = parent.createImage(rDim + 2, phiDim + 2, PApplet.ALPHA);
-		for (int i = 0; i < accumulator.length; i++) {
-		houghImg.pixels[i] = parent.color(PApplet.min(255, accumulator[i]));
-		}
-		houghImg.updatePixels();
-//		System.out.println(houghImg.width + " " + houghImg.height);
-		/*translate(800,0);
-		image(houghImg,0,0);
-		translate(-800, 0);*/
+                        int rIdx = (int) ((r / discretizationStepsR) + 0.5 * (rDim - 1) + 1);
+                        accumulator[(phiIdx + 1) * (rDim + 2) + rIdx] += 1;
+                    }
+                }
+            }
+        }
 		
 		ArrayList<Integer> bestCandidates = new ArrayList<Integer>();
-
 
 		// size of the region we search for a local maximum
 		int neighbourhood = 10;
@@ -313,13 +300,14 @@ public class ImageProcessing {
 			int x1 = (int) (r / Math.cos(phi));
 			int y1 = 0;
 			int x2 = edgeImg.width;
-			int y2 = (int) (-Math.cos(phi) / Math.sin(phi) * x2 + r / Math.sin(phi)); int y3 = edgeImg.width;
+			int y2 = (int) (-Math.cos(phi) / Math.sin(phi) * x2 + r / Math.sin(phi));
+            int y3 = edgeImg.width;
 			int x3 = (int) (-(y3 - r / Math.sin(phi)) * (Math.sin(phi) / Math.cos(phi)));
 			// Finally, plot the lines
 			parent.stroke(204, 102, 0);
 			if (y0 > 0) {
 				if (x1 > 0)
-					parent.line(x0, y0, x1, y1);
+                    parent.line(x0, y0, x1, y1);
 				else if (y2 > 0)
 					parent.line(x0, y0, x2, y2);
 				else
@@ -328,7 +316,8 @@ public class ImageProcessing {
 			else {
 				if (x1 > 0) {
 					if (y2 > 0)
-						parent.line(x1, y1, x2, y2); else
+						parent.line(x1, y1, x2, y2);
+                    else
 						parent.line(x1, y1, x3, y3);
 				}
 				else
@@ -340,7 +329,7 @@ public class ImageProcessing {
 
 	}
 
-	private ArrayList<PVector> getIntersections(List<PVector> lines) {
+	private List<PVector> getIntersections(List<PVector> lines) {
 		ArrayList<PVector> intersections = new ArrayList<PVector>(); 
 		for (int i = 0; i < lines.size() - 1; i++) {
 			PVector line1 = lines.get(i);
@@ -368,7 +357,7 @@ public class ImageProcessing {
 
 		parent.ellipse(x, y, 10, 10);
 		parent.fill(255, 128, 0);
-		return new PVector(x, y);
 
+		return new PVector(x, y);
 	}
 }

@@ -4,8 +4,6 @@ import java.util.List;
 import processing.core.PVector;
 
 public class QuadGraph {
-
-
 	List<int[]> cycles = new ArrayList<int[]>();
 	int[][] graph;
 	List<PVector> lines;
