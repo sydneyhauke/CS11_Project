@@ -355,8 +355,8 @@ public class ImageProcessing {
 		float x = (line2.x*PApplet.sin(line1.y) - line1.x*PApplet.sin(line2.y)) / d;
 		float y = (-line2.x*PApplet.cos(line1.y) + line1.x*PApplet.cos(line2.y)) / d;
 
-		parent.ellipse(x, y, 10, 10);
-		parent.fill(255, 128, 0);
+		/*parent.ellipse(x, y, 10, 10);
+		parent.fill(255, 128, 0);*/
 
 		return new PVector(x, y);
 	}
