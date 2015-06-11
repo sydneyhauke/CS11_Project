@@ -9,13 +9,21 @@ public class Tower {
     private PApplet parent;
     private static PShape tower;
 
+    public static void loadShape(PApplet parent){
+        if(tower == null){
+        	tower = parent.loadShape("Towerv2.obj");
+        	tower.scale(1.2f);
+        }
+    }
+    
     public Tower(PApplet parent) {
         this.parent = parent;
         if(tower == null){
-        	tower = parent.loadShape("Towerv2_2.obj");
-        	tower.scale(1);
+        	loadShape(parent);
         }
     }
+    
+    
 
     public void display() {
         parent.pushMatrix();
