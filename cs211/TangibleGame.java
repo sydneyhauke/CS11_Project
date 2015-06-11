@@ -15,7 +15,7 @@ public class TangibleGame extends PApplet {
     final int WINDOW_HEIGHT = 1000;
     final int WINDOW_WIDTH = 1500;
 
-    final int BACKGROUND_HEIGHT = 250;
+    final int BACKGROUND_HEIGHT = 150;
 
     final int BOARDWIDTH = 400;
     final int BOARDLENGTH = 400;
@@ -63,6 +63,7 @@ public class TangibleGame extends PApplet {
         size(WINDOW_WIDTH, WINDOW_HEIGHT, P3D);
         noStroke();
         mover = new Mover(this, BALL_RADIUS, BOARDLENGTH, BOARDHEIGHT, BOARDWIDTH);
+        
         dataBackground = createGraphics(WINDOW_WIDTH, BACKGROUND_HEIGHT, P2D);
         topView = createGraphics(SCORE_SQUARE + 20, SCORE_SQUARE + 20, P2D);
         scoreboard = createGraphics(SCORE_SQUARE + 20, SCORE_SQUARE + 20, P2D);
@@ -83,7 +84,6 @@ public class TangibleGame extends PApplet {
             println("Choose your camera [1-100] : ");
             Scanner keyboard = new Scanner(System.in);
             int camOpt = keyboard.nextInt();
-
             cam = new Capture(this, cameras[camOpt]);
             cam.start();
         }
@@ -93,15 +93,26 @@ public class TangibleGame extends PApplet {
         if(cam.available()) cam.read();
         img = cam.get();
 
+
         background(200);
+        
+        //the default camera of Processing to use for the data info
+        camera(width/2.0f, height/2.0f, (float)((height/2.0) / Math.tan(PI*30.0 / 180.0)), width/2.0f, height/2.0f, 0, 0, 1, 0);
+        
+        pushMatrix();
+        translate(0,WINDOW_HEIGHT-BACKGROUND_HEIGHT);
+        data.display(this);
+        popMatrix();
+        
+        
         directionalLight(255, 255, 255, 0, 1, -1);
         ambientLight(102, 102, 102);
 
-        dataBackground.beginDraw();
-        dataBackground.background(255, 255, 200);
-        dataBackground.endDraw();
-        image(dataBackground, 0, WINDOW_HEIGHT-BACKGROUND_HEIGHT);
-
+//        dataBackground.beginDraw();
+//        dataBackground.background(255, 255, 200);
+//        dataBackground.endDraw();
+//        image(dataBackground, 0, WINDOW_HEIGHT-BACKGROUND_HEIGHT);
+        
         // Based on which mode we are, camera is placed nearer the board
         if(addingCylinderMode)
             camera(width/2, height/2, 400, width/2, height/2, 0, 0, 1, 0);
