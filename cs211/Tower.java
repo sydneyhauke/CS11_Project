@@ -7,12 +7,14 @@ import processing.core.PShape;
  */
 public class Tower {
     private PApplet parent;
-    private PShape tower;
+    private static PShape tower;
 
     public Tower(PApplet parent) {
         this.parent = parent;
-        tower = parent.loadShape("Towerv2.obj");
-        tower.scale(1);
+        if(tower == null){
+        	tower = parent.loadShape("Towerv2_2.obj");
+        	tower.scale(1);
+        }
     }
 
     public void display() {
