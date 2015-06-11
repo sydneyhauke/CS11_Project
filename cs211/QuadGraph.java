@@ -28,7 +28,6 @@ public class QuadGraph {
 				}
 			}
 		}
-
 	}
 
 	/** Returns true if polar lines 1 and 2 intersect 
@@ -48,11 +47,7 @@ public class QuadGraph {
 		int x = (int) ((r2 * sin_t1 - r1 * sin_t2) / denom);
 		int y = (int) ((-r2 * cos_t1 + r1 * cos_t2) / denom);
 
-		if (0 <= x && 0 <= y && width >= x && height >= y)
-			return true;
-		else
-			return false;
-
+		return (0 <= x && 0 <= y && width >= x && height >= y);
 	}
 
 	List<int[]> findCycles( float max_area, float min_area) {
@@ -285,6 +280,4 @@ public class QuadGraph {
 			return false;
 		}
 	}
-
-
 }
