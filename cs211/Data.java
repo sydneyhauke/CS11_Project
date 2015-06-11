@@ -7,6 +7,7 @@ public class Data {
     final PGraphics topView;
     final PGraphics scoreboard;
     final BarChart barChart;
+    final HScrollbar scrollBar;
     
     private final float BOARDWIDTH;
     private final float BOARDLENGTH;
@@ -15,14 +16,15 @@ public class Data {
     private final int SCORE_SQUARE;
     private final float ratio;
     
-    public Data(PGraphics dataBackground, PGraphics topView, PGraphics scoreboard, PGraphics barChart, 
-    		Mover mover, int SCORE_SQUARE, float BOARDWIDTH, float BOARDLENGTH, float BALL_RADIUS) {
+    public Data(PGraphics dataBackground, PGraphics topView, PGraphics scoreboard, PGraphics barChart,
+    		HScrollbar scrollBar, Mover mover, int SCORE_SQUARE, float BOARDWIDTH, float BOARDLENGTH, float BALL_RADIUS) {
         
     	this.dataBackground = dataBackground;
     	this.topView = topView;
     	this.scoreboard = scoreboard;
     	//barChar is complex, it has his own class
-    	this.barChart = new BarChart(barChart, mover); 
+    	this.barChart = new BarChart(barChart, scrollBar, mover); 
+    	this.scrollBar = scrollBar;
     	
     	
 		this.mover = mover;
@@ -48,6 +50,11 @@ public class Data {
     	parent.translate(20 + SCORE_SQUARE, 10);
         
     	barChart.display(parent);
+    	
+    	parent.translate(0, barChart.height() + 6);
+    	scrollBar.update();
+    	scrollBar.display();
+    	System.out.println(scrollBar.getPos());
     	
     	parent.popMatrix();
     }

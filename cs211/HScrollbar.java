@@ -55,7 +55,7 @@ public class HScrollbar {
 			locked = false;
 		}
 		if (locked) {
-			newSliderPosition = constrain(parent.mouseX - barHeight / 2,
+			newSliderPosition = constrain(parent.mouseX - parent.modelX(xPosition, yPosition, 0) - barHeight / 2,
 					sliderPositionMin, sliderPositionMax);
 		}
 		if (parent.abs(newSliderPosition - sliderPosition) > 1) {
@@ -88,8 +88,10 @@ public class HScrollbar {
 	 * @return Whether the mouse is hovering the scrollbar
 	 */
 	boolean isMouseOver() {
-		if (parent.mouseX > xPosition && parent.mouseX < xPosition + barWidth
-				&& parent.mouseY > yPosition && parent.mouseY < yPosition + barHeight) {
+		float x = parent.modelX(xPosition, yPosition, 0);
+		float y = parent.modelY(xPosition, yPosition, 0);
+		if (parent.mouseX > x && parent.mouseX < x + barWidth
+				&& parent.mouseY > y && parent.mouseY < y + barHeight) {
 			return true;
 		} else {
 			return false;

@@ -17,7 +17,7 @@ public class TangibleGame extends PApplet {
     final int WINDOW_HEIGHT = 1000;
     final int WINDOW_WIDTH = 1500;
 
-    final int BACKGROUND_HEIGHT = 150;
+    final int DATA_HEIGHT = 150;
 
     final int BOARDWIDTH = 400;
     final int BOARDLENGTH = 400;
@@ -54,6 +54,7 @@ public class TangibleGame extends PApplet {
     PGraphics topView;
     PGraphics scoreboard;
     PGraphics barChart;
+    HScrollbar scrollBar;
     Data data;
 
     Capture cam;
@@ -67,13 +68,16 @@ public class TangibleGame extends PApplet {
         noStroke();
         mover = new Mover(this, BALL_RADIUS, BOARDLENGTH, BOARDHEIGHT, BOARDWIDTH);
         
-        dataBackground = createGraphics(WINDOW_WIDTH, BACKGROUND_HEIGHT, P2D);
+        dataBackground = createGraphics(WINDOW_WIDTH, DATA_HEIGHT, P2D);
         topView = createGraphics(SCORE_SQUARE + 20, SCORE_SQUARE + 20, P2D);
         scoreboard = createGraphics(SCORE_SQUARE + 20, SCORE_SQUARE + 20, P2D);
         barChart = createGraphics(WINDOW_WIDTH - topView.width - scoreboard.width - 10, SCORE_SQUARE - 20, P2D);
-        data = new Data(dataBackground, topView, scoreboard, barChart, mover, SCORE_SQUARE, BOARDWIDTH, BOARDLENGTH, BALL_RADIUS);
+        scrollBar = new HScrollbar(this, 0, 0, barChart.width/2, 15);
+        data = new Data(dataBackground,topView, scoreboard, barChart, scrollBar, mover, SCORE_SQUARE, BOARDWIDTH, BOARDLENGTH, BALL_RADIUS);
         imgProcessor = new ImageProcessing(this);
 
+        Tower.loadShape(this);
+        
         String[] cameras = Capture.list();
         if (cameras.length == 0) {
             println("There are no cameras available for capture.");
@@ -83,10 +87,11 @@ public class TangibleGame extends PApplet {
             for (int i = 0; i < cameras.length; i++) {
                 println(i + ": " + cameras[i]);
             }
-
+            
             println("Choose your camera [1-100] : ");
-            Scanner keyboard = new Scanner(System.in);
-            int camOpt = keyboard.nextInt();
+//            Scanner keyboard = new Scanner(System.in);
+//            int camOpt = keyboard.nextInt();
+            int camOpt = 9;
             cam = new Capture(this, cameras[camOpt]);
             cam.start();
         }
@@ -100,8 +105,8 @@ public class TangibleGame extends PApplet {
     }
 
     public void draw() {
-        if(cam.available()) cam.read();
-        img = cam.get();
+//        if(cam.available()) cam.read();
+//        img = cam.get();
 
 
         background(200);
@@ -109,10 +114,12 @@ public class TangibleGame extends PApplet {
         //the default camera of Processing to use for the data info
         camera(width/2.0f, height/2.0f, (float)((height/2.0) / Math.tan(PI*30.0 / 180.0)), width/2.0f, height/2.0f, 0, 0, 1, 0);
         
-        pushMatrix();
-        translate(0,WINDOW_HEIGHT-BACKGROUND_HEIGHT);
-        data.display(this);
-        popMatrix();
+        if(!addingCylinderMode) {
+        	pushMatrix();
+        	translate(0,WINDOW_HEIGHT-DATA_HEIGHT);
+        	data.display(this);
+        	popMatrix();
+        }
         
         
         directionalLight(255, 255, 255, 0, 1, -1);
@@ -197,7 +204,7 @@ public class TangibleGame extends PApplet {
     }
 
     public void mouseDragged() {
-        if(!addingCylinderMode) {
+        if(!addingCylinderMode && mouseY < WINDOW_HEIGHT - DATA_HEIGHT) {
             float tiltXIncrement = -tilt_coeff*(mouseY - pmouseY);
             float tiltZIncrement = tilt_coeff*(mouseX - pmouseX);
 
