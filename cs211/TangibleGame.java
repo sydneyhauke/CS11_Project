@@ -1,9 +1,11 @@
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import processing.core.PVector;
 import processing.event.MouseEvent;
 import processing.video.Capture;
 
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -58,6 +60,7 @@ public class TangibleGame extends PApplet {
     PImage img;
 
     ImageProcessing imgProcessor;
+    TwoDThreeD corresponder;
 
     public void setup() {
         size(WINDOW_WIDTH, WINDOW_HEIGHT, P3D);
@@ -87,6 +90,13 @@ public class TangibleGame extends PApplet {
             cam = new Capture(this, cameras[camOpt]);
             cam.start();
         }
+
+        /*img = loadImage("board1.jpg");
+        List<PVector> corners = imgProcessor.process(img, 100, 135, 0, 255, 0, 255);
+        corresponder = new TwoDThreeD(img.width, img.height);
+        PVector rotations = corresponder.get3DRotations(TwoDThreeD.sortCorners(corners));
+        println("rotX = " + rotations.x*(360/(2*PI)) + ", rotY = " + rotations.y*(360/(2*PI)) + ", rotZ = " + rotations.z*(360/(2*PI)));
+        noLoop();*/
     }
 
     public void draw() {

@@ -85,16 +85,16 @@ public class QuadGraph {
 						findNewCycles(sub, max_area, min_area);
 					}
 				//  cycle found
-					else if ((path.length > 3) && (x == path[path.length - 1])){
+					else if ((path.length == 4) && (x == path[path.length - 1])){
 						int[] p = normalize(path);
 						int[] inv = invert(p);
 						if (isNew(p) && isNew(inv)){
-							if(isConvex(lines.get(p[0]), lines.get(p[1]), lines.get(p[2]), lines.get(p[3]))
+							/*if(isConvex(lines.get(p[0]), lines.get(p[1]), lines.get(p[2]), lines.get(p[3]))
 							&& nonFlatQuad(lines.get(p[0]), lines.get(p[1]), lines.get(p[2]), lines.get(p[3]))
-							&& validArea(lines.get(p[0]), lines.get(p[1]), lines.get(p[2]), lines.get(p[3]), max_area, min_area)){
+							&& validArea(lines.get(p[0]), lines.get(p[1]), lines.get(p[2]), lines.get(p[3]), max_area, min_area)){*/
 								cycles.add(p);
-							}
-							
+							//}
+
 						}
 					}
 				}

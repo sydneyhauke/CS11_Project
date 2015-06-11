@@ -12,7 +12,7 @@ public class Tower {
     public Tower(PApplet parent) {
         this.parent = parent;
         if(tower == null){
-        	tower = parent.loadShape("Towerv2_2.obj");
+        	tower = parent.loadShape("Towerv2.obj");
         	tower.scale(1);
         }
     }

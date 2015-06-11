@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -36,7 +33,7 @@ public class ImageProcessing {
 		QuadGraph qg = new QuadGraph();
 		List<PVector> lines = hough(sobelImg, 200, 6);
 		qg.build(lines, img.width, img.height);
-		qg.findCycles(400, 100);
+		qg.findCycles(1000, 0);
 
 		for (int[] quad : qg.cycles) {
 			PVector l1 = lines.get(quad[0]);
@@ -59,11 +56,29 @@ public class ImageProcessing {
                 lst.add(c34);
                 lst.add(c41);
 
+                PApplet.println("Quad found :");
+                PApplet.println(c12);
+                PApplet.println(c23);
+                PApplet.println(c34);
+                PApplet.println(c41);
+
+                Random random = new Random();
+                parent.fill(parent.color(PApplet.min(255, random.nextInt(300)),
+                        PApplet.min(255, random.nextInt(300)),
+                        PApplet.min(255, random.nextInt(300)), 50));
+
+                parent.quad(c12.x, c12.y, c23.x, c23.y, c34.x, c34.y, c41.x, c41.y);
+
                 return lst;
             }
 		}
 
-        return new ArrayList<>(); // return empty list if no good quad is found
+        return Arrays.asList(
+                new PVector(0,0,0),
+                new PVector(0,0,0),
+                new PVector(0,0,0),
+                new PVector(0,0,0)
+        );
 	}
 
 	private PImage selHSB(PImage src, float infHue, float supHue, float infSat, float supSat, float infBr, float supBr) {
@@ -325,7 +340,7 @@ public class ImageProcessing {
 			}
 
 		}
-		return getIntersections(lines);
+		return lines;
 
 	}
 
