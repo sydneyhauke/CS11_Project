@@ -54,7 +54,6 @@ public class Data {
     	parent.translate(0, barChart.height() + 6);
     	scrollBar.update();
     	scrollBar.display();
-    	System.out.println(scrollBar.getPos());
     	
     	parent.popMatrix();
     }
