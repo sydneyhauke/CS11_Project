@@ -59,7 +59,8 @@ public class TangibleGame extends PApplet {
     HScrollbar scrollBar;
     Data data;
 
-    Movie cam;
+    //Movie cam;
+    Capture cam;
     PImage img;
 
     ImageProcessing imgProcessor;
@@ -94,7 +95,7 @@ public class TangibleGame extends PApplet {
 
         Tower.loadShape(this);
         
-        /*String[] cameras = Capture.list();
+        String[] cameras = Capture.list();
         if (cameras.length == 0) {
             println("There are no cameras available for capture.");
             exit();
@@ -109,7 +110,7 @@ public class TangibleGame extends PApplet {
             int camOpt = keyboard.nextInt();
             cam = new Capture(this, cameras[camOpt]);
             cam.start();
-        }*/
+        }
 
         /*img = loadImage("board1.jpg");
         List<PVector> corners = imgProcessor.process(img, 100, 135, 0, 255, 0, 255);
@@ -118,11 +119,9 @@ public class TangibleGame extends PApplet {
         println("rotX = " + rotations.x*(360/(2*PI)) + ", rotY = " + rotations.y*(360/(2*PI)) + ", rotZ = " + rotations.z*(360/(2*PI)));
         noLoop();*/
 
-        cam = new Movie(this, "/home/sydney/Documents/Uni/Assignments/VisualComputing/CS11_Project/cs211/testvideo.ogg");
-        img = cam.get();
+        //cam = new Movie(this, "/home/sydney/Documents/Uni/Assignments/VisualComputing/CS11_Project/cs211/testvideo.ogg");
 
-        corresponder = new TwoDThreeD(img.width, img.height);
-        cam.loop();
+        corresponder = new TwoDThreeD(640, 480);
     }
 
     public void draw() {
@@ -162,7 +161,8 @@ public class TangibleGame extends PApplet {
             popMatrix();
 
             pushMatrix();
-            sobel.resize(0, 150);
+            if(sobel.width > 0 && sobel.height > 0)
+                sobel.resize(0, 150);
             image(sobel, 0, 0);
             for(PVector p : corners) {
                 fill(255, 128, 0);
@@ -187,7 +187,7 @@ public class TangibleGame extends PApplet {
 
         // Place the coordinate system
         translate(width/2, height/2, 0);
-        if(!addingCylinderMode) rotateX(tiltX + UP_TILT);
+        if(!addingCylinderMode) rotateX(rotations.x + UP_TILT);
         else rotateX(rotations.x);
         rotateZ(rotations.z);
         rotateY(rotation);
