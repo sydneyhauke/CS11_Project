@@ -12,8 +12,6 @@ import java.util.*;
  * Created by sydney on 11.05.15.
  */
 public class TangibleGame extends PApplet {
-    final boolean ImageProcessingTestMode = true;
-
     final int WINDOW_HEIGHT = 900;
     final int WINDOW_WIDTH = 1500;
 
@@ -49,10 +47,6 @@ public class TangibleGame extends PApplet {
 
     Mover mover;
 
-    boolean showAxis = false;
-    boolean drawOrigin = false;
-    float longueurAxes = 1000;
-
     boolean addingCylinderMode = false;
 
     private int SCORE_SQUARE = 130;
@@ -63,8 +57,8 @@ public class TangibleGame extends PApplet {
     HScrollbar scrollBar;
     Data data;
 
-    //Movie cam;
-    Capture cam;
+    Movie cam;
+    //Capture cam;
     PImage img;
 
     ImageProcessing imgProcessor;
@@ -106,7 +100,7 @@ public class TangibleGame extends PApplet {
 
         Tower.loadShape(this);
         
-        String[] cameras = Capture.list();
+        /*String[] cameras = Capture.list();
         if (cameras.length == 0) {
             println("There are no cameras available for capture.");
             exit();
@@ -121,17 +115,10 @@ public class TangibleGame extends PApplet {
             int camOpt = keyboard.nextInt();
             cam = new Capture(this, cameras[camOpt]);
             cam.start();
-        }
+        }*/
 
-        /*img = loadImage("board1.jpg");
-        List<PVector> corners = imgProcessor.process(img, 100, 135, 0, 255, 0, 255);
-        corresponder = new TwoDThreeD(img.width, img.height);
-        PVector rotations = corresponder.get3DRotations(TwoDThreeD.sortCorners(corners));
-        println("rotX = " + rotations.x*(360/(2*PI)) + ", rotY = " + rotations.y*(360/(2*PI)) + ", rotZ = " + rotations.z*(360/(2*PI)));
-        noLoop();*/
-
-        //cam = new Movie(this, "/home/sydney/Documents/Uni/Assignments/VisualComputing/CS11_Project/cs211/testvideo.ogg");
-
+        cam = new Movie(this, "/home/sydney/Documents/Uni/Assignments/VisualComputing/CS11_Project/cs211/testvideo.ogg");
+        cam.loop();
         corresponder = new TwoDThreeD(640, 480);
     }
 
@@ -143,45 +130,53 @@ public class TangibleGame extends PApplet {
         infBr.update();
         supBr.update();
 
-
-        if(cam.available()) cam.read();
-        img = cam.get();
-
-        //PImage processedImg = imgProcessor.process(img, 108, 127, 80, 255, 50, 255);
-        PImage processedImg = imgProcessor.process(img, infHue.getPos()*255, supHue.getPos()*255, infSat.getPos()*255, supSat.getPos()*255, infBr.getPos()*255, supBr.getPos()*255);
-        List<PVector> corners = imgProcessor.getCorners();
-        corners = TwoDThreeD.sortCorners(corners);
-        PVector rotations = corresponder.get3DRotations(corners);
-        rotations.y *= -1;
-
-        queuedRotations.remove();
-        queuedRotations.add(rotations);
-
-        float totalX = 0.0f;
-        float totalY = 0.0f;
-        for(PVector p : queuedRotations) {
-            totalX += p.x;
-            totalY += p.y;
-        }
-
-        meanRotations.x = totalX/queuedRotations.size();
-        meanRotations.y = totalY/queuedRotations.size();
-
         background(200);
 
         //the default camera of Processing to use for the data info
         camera(width / 2.0f, height / 2.0f, (float) ((height / 2.0) / Math.tan(PI * 30.0 / 180.0)), width / 2.0f, height / 2.0f, 0, 0, 1, 0);
-        
-        pushMatrix();
-        infHue.display();
-        supHue.display();
-        infSat.display();
-        supSat.display();
-        infBr.display();
-        supBr.display();
-        popMatrix();
 
         if(!addingCylinderMode) {
+            pushMatrix();
+            infHue.display();
+            supHue.display();
+            infSat.display();
+            supSat.display();
+            infBr.display();
+            supBr.display();
+
+            textAlign(RIGHT, BOTTOM);
+            text("Hue down : " + infHue.getPos()*255, WINDOW_WIDTH-260, 20);
+            text("Hue up : " + supHue.getPos()*255,WINDOW_WIDTH-260, 60);
+            text("Saturation down : " + infSat.getPos()*255,WINDOW_WIDTH-260, 100);
+            text("Saturation up : " + supSat.getPos()*255,WINDOW_WIDTH-260, 140);
+            text("Brightness down : " + infBr.getPos()*255,WINDOW_WIDTH-260, 180);
+            text("Brightness up : " + supBr.getPos()*255,WINDOW_WIDTH-260, 220);
+
+            popMatrix();
+
+            if(cam.available()) cam.read();
+            img = cam.get();
+
+            //PImage processedImg = imgProcessor.process(img, 108, 127, 80, 255, 50, 255);
+            PImage processedImg = imgProcessor.process(img, infHue.getPos()*255, supHue.getPos()*255, infSat.getPos()*255, supSat.getPos()*255, infBr.getPos()*255, supBr.getPos()*255);
+            List<PVector> corners = imgProcessor.getCorners();
+            corners = TwoDThreeD.sortCorners(corners);
+            PVector rotations = corresponder.get3DRotations(corners);
+            rotations.y *= -1;
+
+            queuedRotations.remove();
+            queuedRotations.add(rotations);
+
+            float totalX = 0.0f;
+            float totalY = 0.0f;
+            for(PVector p : queuedRotations) {
+                totalX += p.x;
+                totalY += p.y;
+            }
+
+            meanRotations.x = totalX/queuedRotations.size();
+            meanRotations.y = totalY/queuedRotations.size();
+
         	pushMatrix();
         	translate(0,WINDOW_HEIGHT-DATA_HEIGHT);
         	data.display(this);
@@ -218,19 +213,6 @@ public class TangibleGame extends PApplet {
         else rotateX(-PI/2);
         rotateZ(meanRotations.y);
         rotateY(rotation);
-
-        // Optional : show Axis
-        if(showAxis) {
-            //Axe X
-            stroke(0, 255, 0);
-            line(-longueurAxes/2, 0, 0, longueurAxes/2, 0, 0);
-            //Axe Y
-            stroke(255, 0, 0);
-            line(0, -longueurAxes/2, 0, 0, longueurAxes/2, 0);
-            //Axe Z
-            stroke(0,0,255);
-            line(0, 0, -longueurAxes/2, 0, 0, longueurAxes/2);
-        }
 
         //If we are in adding cylinder mode, place a cylinder
         if(addingCylinderMode) {

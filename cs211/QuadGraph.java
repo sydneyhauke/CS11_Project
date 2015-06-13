@@ -56,13 +56,13 @@ public class QuadGraph {
 				findNewCycles(new int[] {graph[i][j]}, max_area, min_area);
 			}
 		}
-		for (int[] cy : cycles) {
-			String s = "" + cy[0];
+		/*for (int[] cy : cycles) {
+			//String s = "" + cy[0];
 			for (int i = 1; i < cy.length; i++) {
 				s += "," + cy[i];
 			}
-			System.out.println(s);
-		}
+			//System.out.println(s);
+		}*/
 		return cycles;
 	}
 
@@ -222,7 +222,7 @@ public class QuadGraph {
 		if(   (i1>0 && i2>0 && i3>0 && i4>0) 
 				|| (i1<0 && i2<0 && i3<0 && i4<0))
 			return true;
-		else 
+		else
 			System.out.println("Eliminating non-convex quad");
 		return false;
 
@@ -259,7 +259,7 @@ public class QuadGraph {
 	public static boolean nonFlatQuad(PVector c1,PVector c2,PVector c3,PVector c4){
 
 		// cos(70deg) ~= 0.3
-		float min_cos = 0.3f;
+		float min_cos = 0.44f;
 
 		PVector v21= PVector.sub(c1, c2);
 		PVector v32= PVector.sub(c2, c3);
