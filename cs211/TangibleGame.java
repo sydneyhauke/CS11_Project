@@ -112,7 +112,7 @@ public class TangibleGame extends PApplet {
             
             print("Choose your camera [1-100] : ");
             Scanner keyboard = new Scanner(System.in);
-            int camOpt = keyboard.nextInt();
+            int camOpt = 9;//keyboard.nextInt();
             cam = new Capture(this, cameras[camOpt]);
             cam.start();
         }
@@ -207,7 +207,7 @@ public class TangibleGame extends PApplet {
         // Place the coordinate system
         translate(width/2, height/2, 0);
         if(!addingCylinderMode) rotateX(meanRotations.x + UP_TILT);
-        else rotateX(meanRotations.x);
+        else rotateX(-PI/2);
         rotateZ(meanRotations.y);
         rotateY(rotation);
 
