@@ -13,6 +13,7 @@ class Mover {
     final float TowerResolution = 40;
     final float ballRadius;
 
+    //location and velocity of the ball
     PVector location;
     PVector velocity;
     PVector gravity;

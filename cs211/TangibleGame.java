@@ -207,7 +207,7 @@ public class TangibleGame extends PApplet {
         // Place the coordinate system
         translate(width/2, height/2, 0);
         if(!addingCylinderMode) rotateX(meanRotations.x + UP_TILT);
-        else rotateX(meanRotations.x);
+        else rotateX(-PI/2);
         rotateZ(meanRotations.y);
         rotateY(rotation);
 
@@ -226,7 +226,8 @@ public class TangibleGame extends PApplet {
 
         //If we are in adding cylinder mode, place a cylinder
         if(addingCylinderMode) {
-            mover.placeTower(map(mouseX, 0, width, -BOARDLENGTH/2, BOARDLENGTH/2), map(mouseY, 0, height, -BOARDWIDTH/2, BOARDWIDTH/2));
+            // mover.placeTower(map(mouseX, 0, width, -BOARDLENGTH/2, BOARDLENGTH/2), map(mouseY, 0, height, -BOARDWIDTH/2, BOARDWIDTH/2));
+            mover.placeTower(mouseX - width/2f, mouseY - height/2f);
         }
         else {
             // update and display environnement here
