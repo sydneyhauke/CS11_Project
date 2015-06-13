@@ -83,7 +83,7 @@ public class TangibleGame extends PApplet {
         topView = createGraphics(SCORE_SQUARE + 20, SCORE_SQUARE + 20, P2D);
         scoreboard = createGraphics(SCORE_SQUARE + 20, SCORE_SQUARE + 20, P2D);
         barChart = createGraphics(WINDOW_WIDTH - topView.width - scoreboard.width - 10, SCORE_SQUARE - 20, P2D);
-        scrollBar = new HScrollbar(this, 0, 0, barChart.width/2, 15);
+        scrollBar = new HScrollbar(this, 0, 0, barChart.width/2, 15, true);
         data = new Data(dataBackground,topView, scoreboard, barChart, scrollBar, mover, SCORE_SQUARE, BOARDWIDTH, BOARDLENGTH, BALL_RADIUS);
         imgProcessor = new ImageProcessing(this);
         queuedRotations = new LinkedList<>();
@@ -91,12 +91,12 @@ public class TangibleGame extends PApplet {
 
         for(int i = 0; i < 4; i++) queuedRotations.add(new PVector(0,0,0));
 
-        infHue = new HScrollbar(this, WINDOW_WIDTH-250, 0, 250, 20);
-        supHue = new HScrollbar(this, WINDOW_WIDTH-250, 40, 250, 20);
-        infSat = new HScrollbar(this, WINDOW_WIDTH-250, 80, 250, 20);
-        supSat = new HScrollbar(this, WINDOW_WIDTH-250, 120, 250, 20);
-        infBr = new HScrollbar(this, WINDOW_WIDTH-250, 160, 250, 20);
-        supBr = new HScrollbar(this, WINDOW_WIDTH-250, 200, 250, 20);
+        infHue = new HScrollbar(this, WINDOW_WIDTH-250, 0, 250, 20, false);
+        supHue = new HScrollbar(this, WINDOW_WIDTH-250, 40, 250, 20, false);
+        infSat = new HScrollbar(this, WINDOW_WIDTH-250, 80, 250, 20, false);
+        supSat = new HScrollbar(this, WINDOW_WIDTH-250, 120, 250, 20, false);
+        infBr = new HScrollbar(this, WINDOW_WIDTH-250, 160, 250, 20, false);
+        supBr = new HScrollbar(this, WINDOW_WIDTH-250, 200, 250, 20, false);
 
         Tower.loadShape(this);
         
@@ -137,14 +137,6 @@ public class TangibleGame extends PApplet {
         infBr.update();
         supBr.update();
 
-        pushMatrix();
-        infHue.display();
-        supHue.display();
-        infSat.display();
-        supSat.display();
-        infBr.display();
-        supBr.display();
-        popMatrix();
 
         if(cam.available()) cam.read();
         img = cam.get();
@@ -173,6 +165,15 @@ public class TangibleGame extends PApplet {
         //the default camera of Processing to use for the data info
         camera(width / 2.0f, height / 2.0f, (float) ((height / 2.0) / Math.tan(PI * 30.0 / 180.0)), width / 2.0f, height / 2.0f, 0, 0, 1, 0);
         
+        pushMatrix();
+        infHue.display();
+        supHue.display();
+        infSat.display();
+        supSat.display();
+        infBr.display();
+        supBr.display();
+        popMatrix();
+
         if(!addingCylinderMode) {
         	pushMatrix();
         	translate(0,WINDOW_HEIGHT-DATA_HEIGHT);
