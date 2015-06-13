@@ -141,7 +141,8 @@ public class TangibleGame extends PApplet {
         if(cam.available()) cam.read();
         img = cam.get();
 
-        PImage processedImg = imgProcessor.process(img, 108, 127, 80, 255, 50, 255);
+        //PImage processedImg = imgProcessor.process(img, 108, 127, 80, 255, 50, 255);
+        PImage processedImg = imgProcessor.process(img, infHue.getPos()*255, supHue.getPos()*255, infSat.getPos()*255, supSat.getPos()*255, infBr.getPos()*255, supBr.getPos()*255);
         List<PVector> corners = imgProcessor.getCorners();
         corners = TwoDThreeD.sortCorners(corners);
         PVector rotations = corresponder.get3DRotations(corners);
