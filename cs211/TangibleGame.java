@@ -90,7 +90,7 @@ public class TangibleGame extends PApplet {
             
             println("Choose your camera [1-100] : ");
             Scanner keyboard = new Scanner(System.in);
-            int camOpt = 9;//keyboard.nextInt();
+            int camOpt = keyboard.nextInt();
             cam = new Capture(this, cameras[camOpt]);
             cam.start();
         }
