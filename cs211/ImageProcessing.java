@@ -7,9 +7,11 @@ import processing.core.PVector;
 
 public class ImageProcessing {
     PApplet parent;
+	List<PVector> corners;
 
     public ImageProcessing(PApplet parent) {
         this.parent = parent;
+		corners = new ArrayList<>();
     }
 
     /**
@@ -24,16 +26,23 @@ public class ImageProcessing {
      * @param supBr
      * @return List of all positions of the corners
      */
-	public List<PVector> process(PImage img, float infHue, float supHue, float infSat, float supSat, float infBr, float supBr) {
+	public PImage process(PImage img, float infHue, float supHue, float infSat, float supSat, float infBr, float supBr) {
 		PImage selecHueImg = selHSB(img, infHue, supHue, infSat, supSat, infBr, supBr); // 100 - 135 et webcam : 98, 112
-		PImage bluredImg = gaussianBlur(gaussianBlur(selecHueImg));
+		PImage bluredImg = (gaussianBlur(selecHueImg));
 		PImage thresholdImg = thresholdImg(bluredImg, 0.97);
 		PImage sobelImg = sobel(thresholdImg, 0.1);
-		
+
 		QuadGraph qg = new QuadGraph();
 		List<PVector> lines = hough(sobelImg, 200, 6);
-		qg.build(lines, img.width, img.height);
+		qg.build(lines, sobelImg.width, sobelImg.height);
 		qg.findCycles(1000, 0);
+
+		corners =  Arrays.asList(
+				new PVector(0,0,0),
+				new PVector(0,0,0),
+				new PVector(0,0,0),
+				new PVector(0,0,0)
+		);
 
 		for (int[] quad : qg.cycles) {
 			PVector l1 = lines.get(quad[0]);
@@ -49,7 +58,7 @@ public class ImageProcessing {
 			PVector c34 = getIntersection(l3, l4);
 			PVector c41 = getIntersection(l4, l1);
 
-            if(QuadGraph.nonFlatQuad(c12, c23, c34, c41) && QuadGraph.isConvex(c12, c23, c34, c41)) {
+            if(QuadGraph.nonFlatQuad(c12, c23, c34, c41) && QuadGraph.isConvex(c12, c23, c34, c41) && QuadGraph.validArea(c12, c23, c34, c41, 200000, 20000)) {
                 List<PVector> lst = new ArrayList<PVector>();
                 lst.add(c12);
                 lst.add(c23);
@@ -62,23 +71,22 @@ public class ImageProcessing {
                 PApplet.println(c34);
                 PApplet.println(c41);
 
-                Random random = new Random();
+                /*Random random = new Random();
                 parent.fill(parent.color(PApplet.min(255, random.nextInt(300)),
                         PApplet.min(255, random.nextInt(300)),
                         PApplet.min(255, random.nextInt(300)), 50));
 
-                parent.quad(c12.x, c12.y, c23.x, c23.y, c34.x, c34.y, c41.x, c41.y);
+                parent.quad(c12.x, c12.y, c23.x, c23.y, c34.x, c34.y, c41.x, c41.y);*/
 
-                return lst;
+                corners = lst;
             }
 		}
 
-        return Arrays.asList(
-                new PVector(0,0,0),
-                new PVector(0,0,0),
-                new PVector(0,0,0),
-                new PVector(0,0,0)
-        );
+		return selecHueImg;
+	}
+
+	public List<PVector> getCorners() {
+		return corners;
 	}
 
 	private PImage selHSB(PImage src, float infHue, float supHue, float infSat, float supSat, float infBr, float supBr) {

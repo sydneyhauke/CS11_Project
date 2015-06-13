@@ -40,6 +40,12 @@ public class TwoDThreeD {
     }
 
     public PVector get3DRotations(List<PVector> points2D) {
+        int countZeros = 0;
+        for(PVector p : points2D) {
+            if(p.mag() == 0) countZeros++;
+        }
+
+        if(countZeros == 4) return new PVector(0,0,0);
 
         // 1- Solve the extrinsic matrix from the projected 2D points
         double[][] E = solveExtrinsicMatrix(points2D);
@@ -67,7 +73,6 @@ public class TwoDThreeD {
 
         // 3 - Computes and returns Euler angles (rx, ry, rz) from this matrix
         return rotationFromMatrix(rotationMatrix);
-
     }
 
     private double[][] solveExtrinsicMatrix(List<PVector> points2D) {

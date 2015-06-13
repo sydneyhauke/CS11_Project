@@ -4,9 +4,9 @@ import processing.core.PImage;
 import processing.core.PVector;
 import processing.event.MouseEvent;
 import processing.video.Capture;
+import processing.video.Movie;
 
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by sydney on 11.05.15.
@@ -14,7 +14,7 @@ import java.util.Scanner;
 public class TangibleGame extends PApplet {
     final boolean ImageProcessingTestMode = true;
 
-    final int WINDOW_HEIGHT = 1000;
+    final int WINDOW_HEIGHT = 900;
     final int WINDOW_WIDTH = 1500;
 
     final int DATA_HEIGHT = 150;
@@ -57,11 +57,22 @@ public class TangibleGame extends PApplet {
     HScrollbar scrollBar;
     Data data;
 
+    //Movie cam;
     Capture cam;
     PImage img;
 
     ImageProcessing imgProcessor;
     TwoDThreeD corresponder;
+
+    HScrollbar infHue;
+    HScrollbar supHue;
+    HScrollbar infSat;
+    HScrollbar supSat;
+    HScrollbar infBr;
+    HScrollbar supBr;
+
+    Queue<PVector> queuedRotations;
+    PVector meanRotations;
 
     public void setup() {
         size(WINDOW_WIDTH, WINDOW_HEIGHT, P3D);
@@ -75,6 +86,17 @@ public class TangibleGame extends PApplet {
         scrollBar = new HScrollbar(this, 0, 0, barChart.width/2, 15);
         data = new Data(dataBackground,topView, scoreboard, barChart, scrollBar, mover, SCORE_SQUARE, BOARDWIDTH, BOARDLENGTH, BALL_RADIUS);
         imgProcessor = new ImageProcessing(this);
+        queuedRotations = new LinkedList<>();
+        meanRotations = new PVector(0,0,0);
+
+        for(int i = 0; i < 4; i++) queuedRotations.add(new PVector(0,0,0));
+
+        infHue = new HScrollbar(this, WINDOW_WIDTH-250, 0, 250, 20);
+        supHue = new HScrollbar(this, WINDOW_WIDTH-250, 40, 250, 20);
+        infSat = new HScrollbar(this, WINDOW_WIDTH-250, 80, 250, 20);
+        supSat = new HScrollbar(this, WINDOW_WIDTH-250, 120, 250, 20);
+        infBr = new HScrollbar(this, WINDOW_WIDTH-250, 160, 250, 20);
+        supBr = new HScrollbar(this, WINDOW_WIDTH-250, 200, 250, 20);
 
         Tower.loadShape(this);
         
@@ -88,7 +110,7 @@ public class TangibleGame extends PApplet {
                 println(i + ": " + cameras[i]);
             }
             
-            println("Choose your camera [1-100] : ");
+            print("Choose your camera [1-100] : ");
             Scanner keyboard = new Scanner(System.in);
             int camOpt = keyboard.nextInt();
             cam = new Capture(this, cameras[camOpt]);
@@ -101,25 +123,72 @@ public class TangibleGame extends PApplet {
         PVector rotations = corresponder.get3DRotations(TwoDThreeD.sortCorners(corners));
         println("rotX = " + rotations.x*(360/(2*PI)) + ", rotY = " + rotations.y*(360/(2*PI)) + ", rotZ = " + rotations.z*(360/(2*PI)));
         noLoop();*/
+
+        //cam = new Movie(this, "/home/sydney/Documents/Uni/Assignments/VisualComputing/CS11_Project/cs211/testvideo.ogg");
+
+        corresponder = new TwoDThreeD(640, 480);
     }
 
     public void draw() {
-//        if(cam.available()) cam.read();
-//        img = cam.get();
+        infHue.update();
+        supHue.update();
+        infSat.update();
+        supSat.update();
+        infBr.update();
+        supBr.update();
 
+        pushMatrix();
+        infHue.display();
+        supHue.display();
+        infSat.display();
+        supSat.display();
+        infBr.display();
+        supBr.display();
+        popMatrix();
+
+        if(cam.available()) cam.read();
+        img = cam.get();
+
+        PImage processedImg = imgProcessor.process(img, 108, 127, 80, 255, 50, 255);
+        List<PVector> corners = imgProcessor.getCorners();
+        corners = TwoDThreeD.sortCorners(corners);
+        PVector rotations = corresponder.get3DRotations(corners);
+        rotations.y *= -1;
+
+        queuedRotations.remove();
+        queuedRotations.add(rotations);
+
+        float totalX = 0.0f;
+        float totalY = 0.0f;
+        for(PVector p : queuedRotations) {
+            totalX += p.x;
+            totalY += p.y;
+        }
+
+        meanRotations.x = totalX/queuedRotations.size();
+        meanRotations.y = totalY/queuedRotations.size();
 
         background(200);
-        
+
         //the default camera of Processing to use for the data info
-        camera(width/2.0f, height/2.0f, (float)((height/2.0) / Math.tan(PI*30.0 / 180.0)), width/2.0f, height/2.0f, 0, 0, 1, 0);
+        camera(width / 2.0f, height / 2.0f, (float) ((height / 2.0) / Math.tan(PI * 30.0 / 180.0)), width / 2.0f, height / 2.0f, 0, 0, 1, 0);
         
         if(!addingCylinderMode) {
         	pushMatrix();
         	translate(0,WINDOW_HEIGHT-DATA_HEIGHT);
         	data.display(this);
-        	popMatrix();
+            popMatrix();
+
+            pushMatrix();
+            if(processedImg.width > 0 && processedImg.height > 0)
+                processedImg.resize(0, 150);
+            image(processedImg, 0, 0);
+            for(PVector p : corners) {
+                fill(255, 128, 0);
+                ellipse(p.x*(150/(float)img.height), p.y*(150/(float)img.height), 10, 10);
+            }
+            popMatrix();
         }
-        
         
         directionalLight(255, 255, 255, 0, 1, -1);
         ambientLight(102, 102, 102);
@@ -137,9 +206,9 @@ public class TangibleGame extends PApplet {
 
         // Place the coordinate system
         translate(width/2, height/2, 0);
-        if(!addingCylinderMode) rotateX(tiltX + UP_TILT);
-        else rotateX(tiltX);
-        rotateZ(tiltZ);
+        if(!addingCylinderMode) rotateX(meanRotations.x + UP_TILT);
+        else rotateX(meanRotations.x);
+        rotateZ(meanRotations.y);
         rotateY(rotation);
 
         // Optional : show Axis
@@ -162,8 +231,10 @@ public class TangibleGame extends PApplet {
         }
         else {
             // update and display environnement here
-            mover.update(tiltX, tiltZ);
+            //System.out.println("rotations is " + ((rotations == null) ? "null":"not null"));
+            mover.update(meanRotations.x, meanRotations.y);
             mover.display();
+            //image(img, 0, 0);
         }
     }
 
