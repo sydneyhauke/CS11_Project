@@ -40,6 +40,12 @@ public class TangibleGame extends PApplet {
     float tiltXBackup = 0.0f;
     float tiltZBackup = 0.0f;
     float rotationBackup = 0.0f;
+    
+    boolean boardBoundariesDefined = false;
+	float boardLeftX;
+	float boardRightX;
+	float boardUpY;
+	float boardDownY;
 
     Mover mover;
 
@@ -228,8 +234,14 @@ public class TangibleGame extends PApplet {
 
         //If we are in adding cylinder mode, place a cylinder
         if(addingCylinderMode) {
-            // mover.placeTower(map(mouseX, 0, width, -BOARDLENGTH/2, BOARDLENGTH/2), map(mouseY, 0, height, -BOARDWIDTH/2, BOARDWIDTH/2));
-            mover.placeTower(mouseX - width/2f, mouseY - height/2f);
+        	if(!boardBoundariesDefined){
+        		boardLeftX = screenX(-BOARDLENGTH/2f, 0, 0);
+        		boardRightX = screenX(BOARDLENGTH/2f, 0, 0);
+        		boardUpY = screenY(0, 0, -BOARDWIDTH/2f);
+        		boardDownY = screenY(0, 0, BOARDWIDTH/2f);
+        		boardBoundariesDefined = true;
+        	}
+        	mover.placeTower(clampMap(mouseX, boardLeftX, boardRightX, -BOARDLENGTH/2, BOARDLENGTH/2), clampMap(mouseY, boardUpY, boardDownY, -BOARDWIDTH/2, BOARDWIDTH/2));
         }
         else {
             // update and display environnement here
@@ -289,7 +301,7 @@ public class TangibleGame extends PApplet {
     }
 
     public void mousePressed() {
-        mover.addTower(map(mouseX, 0, width, -BOARDLENGTH/2, BOARDLENGTH/2), map(mouseY, 0, height, -BOARDWIDTH/2, BOARDWIDTH/2));
+        mover.addTower(clampMap(mouseX, boardLeftX, boardRightX, -BOARDLENGTH/2, BOARDLENGTH/2), clampMap(mouseY, boardUpY, boardDownY, -BOARDWIDTH/2, BOARDWIDTH/2));
     }
 
     public void mouseWheel(MouseEvent event) {
@@ -297,5 +309,15 @@ public class TangibleGame extends PApplet {
 
         if(newTilt > MIN_TILT_COEFF && newTilt < MAX_TILT_COEFF)
             tilt_coeff = newTilt;
+    }
+    
+    //same as PApplet.map but clamp value outside of range
+    public final float clampMap(float value, float start1, float stop1, float start2, float stop2) {
+    	if(value < start1) 
+    		return start2;
+    	else if (value > stop1)
+    		return stop2;
+    	else
+    		return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
     }
 }
