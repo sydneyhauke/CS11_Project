@@ -6,9 +6,7 @@ import processing.event.MouseEvent;
 import processing.video.Capture;
 import processing.video.Movie;
 
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by sydney on 11.05.15.
@@ -73,6 +71,9 @@ public class TangibleGame extends PApplet {
     HScrollbar infBr;
     HScrollbar supBr;
 
+    Queue<PVector> queuedRotations;
+    PVector meanRotations;
+
     public void setup() {
         size(WINDOW_WIDTH, WINDOW_HEIGHT, P3D);
         noStroke();
@@ -85,6 +86,10 @@ public class TangibleGame extends PApplet {
         scrollBar = new HScrollbar(this, 0, 0, barChart.width/2, 15);
         data = new Data(dataBackground,topView, scoreboard, barChart, scrollBar, mover, SCORE_SQUARE, BOARDWIDTH, BOARDLENGTH, BALL_RADIUS);
         imgProcessor = new ImageProcessing(this);
+        queuedRotations = new LinkedList<>();
+        meanRotations = new PVector(0,0,0);
+
+        for(int i = 0; i < 4; i++) queuedRotations.add(new PVector(0,0,0));
 
         infHue = new HScrollbar(this, WINDOW_WIDTH-250, 0, 250, 20);
         supHue = new HScrollbar(this, WINDOW_WIDTH-250, 40, 250, 20);
@@ -144,10 +149,24 @@ public class TangibleGame extends PApplet {
         if(cam.available()) cam.read();
         img = cam.get();
 
-        PImage sobel = imgProcessor.process(img, 108, 127, 80, 255, 50, 255);
+        PImage processedImg = imgProcessor.process(img, 108, 127, 80, 255, 50, 255);
         List<PVector> corners = imgProcessor.getCorners();
         corners = TwoDThreeD.sortCorners(corners);
         PVector rotations = corresponder.get3DRotations(corners);
+        rotations.y *= -1;
+
+        queuedRotations.remove();
+        queuedRotations.add(rotations);
+
+        float totalX = 0.0f;
+        float totalY = 0.0f;
+        for(PVector p : queuedRotations) {
+            totalX += p.x;
+            totalY += p.y;
+        }
+
+        meanRotations.x = totalX/queuedRotations.size();
+        meanRotations.y = totalY/queuedRotations.size();
 
         background(200);
 
@@ -161,9 +180,9 @@ public class TangibleGame extends PApplet {
             popMatrix();
 
             pushMatrix();
-            if(sobel.width > 0 && sobel.height > 0)
-                sobel.resize(0, 150);
-            image(sobel, 0, 0);
+            if(processedImg.width > 0 && processedImg.height > 0)
+                processedImg.resize(0, 150);
+            image(processedImg, 0, 0);
             for(PVector p : corners) {
                 fill(255, 128, 0);
                 ellipse(p.x*(150/(float)img.height), p.y*(150/(float)img.height), 10, 10);
@@ -187,9 +206,9 @@ public class TangibleGame extends PApplet {
 
         // Place the coordinate system
         translate(width/2, height/2, 0);
-        if(!addingCylinderMode) rotateX(rotations.x + UP_TILT);
-        else rotateX(rotations.x);
-        rotateZ(rotations.z);
+        if(!addingCylinderMode) rotateX(meanRotations.x + UP_TILT);
+        else rotateX(meanRotations.x);
+        rotateZ(meanRotations.y);
         rotateY(rotation);
 
         // Optional : show Axis
@@ -212,7 +231,7 @@ public class TangibleGame extends PApplet {
         else {
             // update and display environnement here
             //System.out.println("rotations is " + ((rotations == null) ? "null":"not null"));
-            mover.update(rotations.x, rotations.z);
+            mover.update(meanRotations.x, meanRotations.y);
             mover.display();
             //image(img, 0, 0);
         }

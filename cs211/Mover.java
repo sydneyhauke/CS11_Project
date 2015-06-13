@@ -7,7 +7,7 @@ import java.util.List;
 class Mover {
     private PApplet parent;
 
-    final float gravityConstant = 0.2f;
+    final float gravityConstant = 0.6f;
     final float TowerRadius = 25;
     final float TowerHeight = -50;
     final float TowerResolution = 40;

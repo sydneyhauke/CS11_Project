@@ -82,7 +82,7 @@ public class ImageProcessing {
             }
 		}
 
-		return sobelImg;
+		return selecHueImg;
 	}
 
 	public List<PVector> getCorners() {
