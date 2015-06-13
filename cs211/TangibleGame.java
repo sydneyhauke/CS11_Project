@@ -90,7 +90,7 @@ public class TangibleGame extends PApplet {
             
             println("Choose your camera [1-100] : ");
             Scanner keyboard = new Scanner(System.in);
-            int camOpt = keyboard.nextInt();
+            int camOpt = 9;//keyboard.nextInt();
             cam = new Capture(this, cameras[camOpt]);
             cam.start();
         }
@@ -157,7 +157,8 @@ public class TangibleGame extends PApplet {
 
         //If we are in adding cylinder mode, place a cylinder
         if(addingCylinderMode) {
-            mover.placeTower(map(mouseX, 0, width, -BOARDLENGTH/2, BOARDLENGTH/2), map(mouseY, 0, height, -BOARDWIDTH/2, BOARDWIDTH/2));
+            // mover.placeTower(map(mouseX, 0, width, -BOARDLENGTH/2, BOARDLENGTH/2), map(mouseY, 0, height, -BOARDWIDTH/2, BOARDWIDTH/2));
+            mover.placeTower(mouseX - width/2f, mouseY - height/2f);
         }
         else {
             // update and display environnement here

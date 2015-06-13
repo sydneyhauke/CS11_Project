@@ -26,6 +26,7 @@ public class BarChart {
 	}
 
 	public void display(PApplet parent){
+		//we only keep record of the score everey timeInterval milliseconds
 		if(System.currentTimeMillis() - lastTime > timeInterval) {
 			scores.add(mover.score);
 			lastTime = System.currentTimeMillis();
@@ -34,13 +35,12 @@ public class BarChart {
 		barChart.beginDraw();
 		barChart.noStroke();
 		barChart.background(238,235,201);
-//		barChart.translate(10, 0);
 		
 		
 		barChart.fill(255,0,0);
 		
 		for(float score : scores) {
-			int height = height = (int) (score/scoreInterval);
+			int height = score > 0 ? (int) (score/scoreInterval) + 1 : 0;
 			while(blockHeight > 1 && height * (blockHeight + blockSpace) > barChart.height) {
 				blockHeight -= Math.max(1, blockHeight/4);
 				height = (int) (score/scoreInterval);
