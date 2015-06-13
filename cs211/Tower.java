@@ -22,8 +22,6 @@ public class Tower {
         	loadShape(parent);
         }
     }
-    
-    
 
     public void display() {
         parent.pushMatrix();

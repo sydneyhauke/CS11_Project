@@ -57,8 +57,14 @@ public class TangibleGame extends PApplet {
     HScrollbar scrollBar;
     Data data;
 
+
+    // ========= CHOOSE HERE ===========
     Movie cam;
     //Capture cam;
+
+    // ========= CHOOSE HERE ===========
+
+
     PImage img;
 
     ImageProcessing imgProcessor;
@@ -99,7 +105,8 @@ public class TangibleGame extends PApplet {
         supBr = new HScrollbar(this, WINDOW_WIDTH-250, 200, 250, 20, false);
 
         Tower.loadShape(this);
-        
+
+        // ============= CHOOSE HERE ===============
         /*String[] cameras = Capture.list();
         if (cameras.length == 0) {
             println("There are no cameras available for capture.");
@@ -119,6 +126,8 @@ public class TangibleGame extends PApplet {
 
         cam = new Movie(this, "/home/sydney/Documents/Uni/Assignments/VisualComputing/CS11_Project/cs211/testvideo.ogg");
         cam.loop();
+        // ================ CHOOSE HERE ================
+
         corresponder = new TwoDThreeD(640, 480);
     }
 
@@ -157,8 +166,11 @@ public class TangibleGame extends PApplet {
             if(cam.available()) cam.read();
             img = cam.get();
 
-            //PImage processedImg = imgProcessor.process(img, 108, 127, 80, 255, 50, 255);
-            PImage processedImg = imgProcessor.process(img, infHue.getPos()*255, supHue.getPos()*255, infSat.getPos()*255, supSat.getPos()*255, infBr.getPos()*255, supBr.getPos()*255);
+            // ============ CHOOSE HERE ============
+            PImage processedImg = imgProcessor.process(img, 108, 127, 80, 255, 50, 255);
+            //PImage processedImg = imgProcessor.process(img, infHue.getPos()*255, supHue.getPos()*255, infSat.getPos()*255, supSat.getPos()*255, infBr.getPos()*255, supBr.getPos()*255);
+            // ============ CHOOSE HERE ============
+
             List<PVector> corners = imgProcessor.getCorners();
             corners = TwoDThreeD.sortCorners(corners);
             PVector rotations = corresponder.get3DRotations(corners);
@@ -186,6 +198,7 @@ public class TangibleGame extends PApplet {
             if(processedImg.width > 0 && processedImg.height > 0)
                 processedImg.resize(0, 150);
             image(processedImg, 0, 0);
+
             for(PVector p : corners) {
                 fill(255, 128, 0);
                 ellipse(p.x*(150/(float)img.height), p.y*(150/(float)img.height), 10, 10);
