@@ -2,7 +2,8 @@ import processing.core.PApplet;
 
 public class HScrollbar {
 	PApplet parent;
-	
+
+	boolean isRelative;
 	float barWidth; // Bar's width in pixels
 	float barHeight; // Bar's height in pixels
 	float xPosition; // Bar's x position in pixels
@@ -27,12 +28,13 @@ public class HScrollbar {
 	 * @param h
 	 *            The height of the bar in pixels
 	 */
-	HScrollbar(PApplet p, float x, float y, float w, float h) {
+	HScrollbar(PApplet p, float x, float y, float w, float h, boolean isRelative) {
 		parent = p;
 		barWidth = w;
 		barHeight = h;
 		xPosition = x;
 		yPosition = y;
+		this.isRelative = isRelative;
 		sliderPosition = xPosition + barWidth / 2 - barHeight / 2;
 		newSliderPosition = sliderPosition;
 		sliderPositionMin = xPosition;
@@ -55,8 +57,12 @@ public class HScrollbar {
 			locked = false;
 		}
 		if (locked) {
-			newSliderPosition = constrain(parent.mouseX - parent.modelX(xPosition, yPosition, 0) - barHeight / 2,
-					sliderPositionMin, sliderPositionMax);
+			if(isRelative)
+				newSliderPosition = constrain(parent.mouseX - parent.modelX(xPosition, yPosition, 0) - barHeight / 2,
+						sliderPositionMin, sliderPositionMax);
+			else 
+				newSliderPosition = constrain(parent.mouseX - barHeight / 2,
+						sliderPositionMin, sliderPositionMax);
 		}
 		if (parent.abs(newSliderPosition - sliderPosition) > 1) {
 			sliderPosition = sliderPosition
@@ -88,8 +94,8 @@ public class HScrollbar {
 	 * @return Whether the mouse is hovering the scrollbar
 	 */
 	boolean isMouseOver() {
-		float x = parent.modelX(xPosition, yPosition, 0);
-		float y = parent.modelY(xPosition, yPosition, 0);
+		float x = isRelative ? parent.modelX(xPosition, yPosition, 0) : xPosition;
+		float y = isRelative ? parent.modelY(xPosition, yPosition, 0) : yPosition;
 		if (parent.mouseX > x && parent.mouseX < x + barWidth
 				&& parent.mouseY > y && parent.mouseY < y + barHeight) {
 			return true;
